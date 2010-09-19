@@ -1,0 +1,428 @@
+<?php
+session_start();
+require_once('../../lib/koneksi.php');
+require_once('../../lib/auth.php');
+//require_once('../../modules/kantor_cabang.php');
+require_once('../../modules/tracking.php');
+//require_once('../../modules/pegawai.php');
+require_once('../../modules/transaksi.php');
+auth_page('customer service');
+$daftarkab=track_getDaftarKab();
+$daftarkec=track_getDaftarKecByKab($daftarkab[0]['id']);
+$daftarkat=trans_getAllKat(); 
+$daftartrans=trans_getDaftarTransByKC($_SESSION['idkantorcabang']);
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>andes customer service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link type="text/css" href="../../css/south-street/jquery-ui-1.8.1.custom.css" rel="stylesheet" />
+    <link type="text/css" href="../../css/main.css" rel="stylesheet" />
+    <link type="text/css" href="../../css/dashboard.css" rel="stylesheet" />
+    <style type="text/css">
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="header">
+            <div id="panelid" class="ui-widget-content ui-corner-all">
+                <h1>Customer Service Dashboard</h1>
+                <div>
+                    <a href="../control.php?op=logout"><button id="logout">Logout</button></a>
+                    <p><span class="nama"><?php echo $_SESSION['nama'];?></span></p><hr/>
+                    <p>Cabang: <?php echo $_SESSION['namakantorcabang'];?></p>
+                </div>
+            </div>
+            <a href="/index.php"><img src="../../images/small_logo.png"/></a>
+            <p><strong>An</strong>dromeda <strong>De</strong>livery <strong>S</strong>ystem</p>
+        </div>
+        <div id="panelinfo" class="ui-state-highlight ui-corner-all">
+	        <p><span style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-info"></span></p>
+	        <p>Selamat Datang.</p>
+        </div>        
+        <div id="content">
+            <div id="tabs">
+	            <ul>
+		            <li><a href="#input_trans">Input Transaksi</a></li>
+		            <li><a href="#lihat_trans" id="lhttrans">Lihat Transaksi</a></li>
+		            <li><a href="#faq">FAQ</a></li>
+	            </ul>
+	            <div id="input_trans">
+		            <p>jangadf sadf sadf sadf asdlf;jkg asldfkjs dlfjalsdkf jalsdfkjsldkjf slkdfj saldfjalsdfasdf</p>
+		            <form id="inputtrans" class="def_form" action="../control.php" method="post">
+		                <input type="hidden" name="op" value="inputtrans" />
+		                <input type="hidden" name="idcs" value="<?php echo $_SESSION['id']; ?>" />
+		                <input type="hidden" name="idkec" value="<?php echo $_SESSION['idkecamatan']; ?>" />
+		                <input type="hidden" name="idkc" value="<?php echo $_SESSION['idkantorcabang']; ?>" />
+		                <fieldset>
+		                <legend>Data Pengirim</legend>
+		                <label for="nmpengirim">Nama Pengirim</label><input type="text" name="nmpengirim" id="nmpengirim" size="35" maxlength="35">
+                        <label for="notelppengirim">No Telp</label><input type="text" name="notelppengirim" id="notelppengirim" size="20" maxlength="20">
+                        <label for="kab_pengirim">Kabupaten</label>
+                        <select name="kab_pengirim" id="kab_pengirim">
+                            <?php foreach($daftarkab as $kab): ?>
+                            <option value="<?php echo $kab['id'];?>"><?php echo $kab['nama'];?></option>
+                            <?php endforeach;?>	
+                        </select>
+                        <label for="kec_pengirim">Kecamatan</label>
+                        <select name="kec_pengirim" id="kec_pengirim">
+                            <?php foreach($daftarkec as $kec): ?>
+                            <option value="<?php echo $kec['id'];?>"><?php echo $kec['nama'];?></option>
+                            <?php endforeach;?>
+                        </select>    
+                        <label for="det_alamat_pengirim">Detail alamat</label>
+                        <textarea name="det_alamat_pengirim" id="det_alamat_pengirim"></textarea>                                   
+                        </fieldset>
+
+		                <fieldset>
+		                <legend>Data Penerima</legend>
+		                <label for="nmpenerima">Nama Penerima</label><input type="text" name="nmpenerima" id="nmpenerima" size="35" maxlength="35">
+                        <label for="notelppenerima">No Telp</label><input type="text" name="notelppenerima" id="notelppenerima" size="20" maxlength="20">
+                        <label for="kab_penerima">Kabupaten</label>
+                        <select name="kab_penerima" id="kab_penerima">
+                            <?php foreach($daftarkab as $kab): ?>
+                            <option value="<?php echo $kab['id'];?>"><?php echo $kab['nama'];?></option>
+                            <?php endforeach;?>
+                        </select>
+                        <label for="kec_penerima">Kecamatan</label>
+                        <select name="kec_penerima" id="kec_penerima">
+                            <?php foreach($daftarkec as $kec): ?>
+                            <option value="<?php echo $kec['id'];?>"><?php echo $kec['nama'];?></option>
+                            <?php endforeach;?>
+                        </select>    
+                        <label for="det_alamat_penerima">Detail alamat</label>
+                        <textarea name="det_alamat_penerima" id="det_alamat_penerima"></textarea>                                   
+                        </fieldset>                        
+
+		                <fieldset>
+		                <legend>Data Barang Kiriman</legend>
+		                <input type="hidden" name="boolbrg" id="boolbrg" value="" />
+		                <table id="daftarbarang" class="tabel">
+		                    <thead>
+		                        <tr><th>Nama</th><th>Berat</th><th>Nilai Barang</th><th>Kategori</th><th>---</th></tr>
+		                    </thead>
+		                    <tbody>                              
+		                                                  
+		                    </tbody>
+		                </table>		                
+		                <label for="nmbarang">Nama Barang</label><input type="text" name="nmbarang" id="nmbarang" size="35" maxlength="35">
+                        <label for="beratbarang">Berat Barang dalam Kg.</label><input type="text" name="beratbarang" id="beratbarang" size="20" maxlength="20">
+                        <label for="nilaibarang">Nilai Barang dalam Rp.</label><input type="text" name="nilaibarang" id="nilaibarang" size="20" maxlength="20">
+                        <label for="kategori">Kategori</label>
+                        <select name="kategori" id="kategori">
+                            <?php foreach($daftarkat as $kat): ?>
+                            <option value="<?php echo $kat['id'];?>,<?php echo $kat['bobot'];?>"><?php echo $kat['deskripsi'];?></option>
+                            <?php endforeach;?>
+                        </select> 
+                        <input type="button" value="Tambahkan" id="tambahbarang">
+                        </fieldset>
+                        
+                        <fieldset>
+                        <legend>Informasi Pengirim</legend>
+                        <label for="tglkirim">Tanggal&Waktu Pengiriman</label>
+                        <input type="text" name="tglkirim" id="tglkirim" size="20" maxlength="20">
+                        <input type="text" name="waktukirim" id="waktukirim" size="8" maxlength="8">
+                        <label for="asuransi">Asuransi</label>
+                        <input type="checkbox" name="asuransi" id="asuransi" value="on" />
+                        <label for="kilat">Layanan Kilat</label>
+                        <input type="checkbox" name="kilat" id="kilat" value="on" />      
+                        </fieldset>              
+                            
+                        <fieldset>
+                        <legend>Informasi Biaya Pengiriman</legend>
+                            <table class="tabel">
+                                <tbody>
+                                <tr><td>Jarak</td><td><span id="infojarak">0</span> km</td></tr>
+                                <tr><td>Jml Item</td><td><span id="infojmlitem">0</span> buah</td></tr>
+                                <tr><td>Layanan Asuransi</td><td><span id="infoasuransi">Tidak </span></td></tr>
+                                <tr><td>Layanan Kilat</td><td><span id="infokilat">Tidak </span></td></tr>
+                                <tr><td>Total Biaya</td><td>Rp. <span id="infobiaya">0</span></td></tr>
+                                </tbody>
+                            </table>
+                            <input type="hidden" name="biaya" id="biaya" value="0" />
+                            <input type="button" value="Hitung Biaya" id="hitung">   
+                        </fieldset>              
+                                                    
+                        <input type="submit" class="tombol" name="kirim" value="Proses" />
+                        <input type="reset" class="tombol" name="hapus" value="Hapus" />
+		            </form>
+	            </div>
+                <div id="lihat_trans">
+		            <p> sadfasdf as stat us Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Curabitur nec arcu. Donec sollicitudin mi sit amet mauris. Nam elementum quam ullamcorper ante. Etiam aliquet massa et lorem. Mauris dapibus lacus auctor risus. Aenean tempor ullamcorper leo. Vivamus sed magna quis ligula eleifend adipiscing. Duis orci. Aliquam sodales tortor vitae ipsum. Aliquam nulla. Duis aliquam molestie erat. Ut et mauris vel pede varius sollicitudin. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>
+		            <table id="daftartransaksi" class="tabel">
+		                <thead>
+		                    <tr><th>ID Transaksi</th><th>Nama Pengirim</th><th>Nama Penerima</th><th>Biaya</th><th>Tgl Waktu Transaksi</th><th>Asuransi</th><th>Kilat</th></tr>
+		                </thead>
+		                <tbody>
+                            <?php foreach($daftartrans as $tran): ?>
+                            <tr><td><?php echo $tran['id']; ?></td><td><?php echo $tran['namapengirim']; ?></td><td><?php echo $tran['namapenerima']; ?></td><td><?php echo $tran['biaya']; ?></td><td><?php echo $tran['tglwaktu']; ?></td><td><?php echo $tran['asuransi']; ?></td><td><?php echo $tran['kilat']; ?></td></tr>
+                            <?php endforeach;?>		                
+		                </tbody>
+		            </table>
+	            </div>           	            
+	            <div id="faq">
+		            <p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
+	            </div>
+            </div>                
+        </div>
+        <div id="footer" class="ui-corner-all">
+            Under development &copy; 2010
+        </div>
+        <div id="konfirminsert" title="Basic dialog">
+	        <p>Pastikan anda memastikan dahulu data sudah terisi dengan benar.</p>
+	        <p>dan pastikan anda telah mengupdate biaya total.</p>
+        </div>        
+    </div>
+</body>
+<script type="text/javascript" src="../../js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="../../js/jquery-ui-1.8.1.custom.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.bgiframe-2.1.1.js"></script>
+<script type="text/javascript" src="../../js/jquery.ui.datepicker-id.js"></script>
+<script type="text/javascript" src="../../js/jquery.validate.js"></script>
+<script type="text/javascript">
+	$(function() {
+	    var fnmbarang=$('#nmbarang'),fbrtbrg=$('#beratbarang'),fkategori=$('#kategori'),fnilaibrg=$('#nilaibarang'),
+	    infbiaya=$('#infobiaya'),infjarak=$('#infojarak'),infkilat=$('#infokilat'),infjmlitem=$('#infojmlitem'),infasuransi=$('#infoasuransi'),
+	    biaya=$('#biaya'),pnlInfo=$('#panelinfo').fadeOut(10000);
+	    
+	    function updateInfo(pesan,hide){
+	        //alert(pesan);
+	        if(hide==undefined){
+	            hide=true;
+	        }
+	        if(hide==true){
+	            pnlInfo.children().last().html(pesan);
+	            pnlInfo.hide().stop().fadeIn('fast').delay(3000);
+	            pnlInfo.fadeOut('slow');
+	        }else{
+	            pnlInfo.show();
+	            pnlInfo.children().last().html(pesan);
+	        }
+	        
+	    }	   
+	    $('#lhttrans').click(updateListTransaksi);
+	    
+	    function updateListTransaksi(){
+            $.ajax({
+                url:'../../lib/ajax.php?op=gettransbykc&idkc='+<?php echo $_SESSION['idkantorcabang'];?>,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                        var tbhtbl=$('#daftartransaksi tbody');
+                        tbhtbl.children().remove();                        
+                        for(var i=0;i<data.length;i++){
+                            $('<tr><td>'+data[i].id+'</td><td>'+data[i].namapengirim+'</td><td>'+data[i].namapenerima+'</td><td>'+data[i].biaya+'</td><td>'+data[i].tglwaktu+'</td><td>'+data[i].asuransi+'</td><td>'+data[i].kilat+'</td></tr>').appendTo(tbhtbl);
+                        }
+                        $('tbody tr:odd').css('background-color','#c0f090');
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	
+	        
+	    } 
+	    $('#tambahbarang').click(function(){
+	        var benar=true;        
+	        $('label.error').remove();
+	        if(fnmbarang.val().trim()==""){
+	            benar=false;
+	            fnmbarang.after('<label for="nmbarang" generated="true" class="error">Isikan nama barang</label>');
+	        }
+    	    if(!/^\d+$/.test(fbrtbrg.val())){
+    	        benar=false;
+    	        fbrtbrg.after('<label for="beratbarang" generated="true" class="error">Masukkan berat barang yang benar, dibulatkan ke atas</label>');
+    	    }
+    	    if(!/^\d+$/.test(fnilaibrg.val())){
+    	        benar=false;
+    	        fnilaibrg.after('<label for="nilaibarang" generated="true" class="error">Masukkan nilai barang dalam Rupiah, tidak perlu tanda baca</label>');
+    	    }
+    	    if(benar){
+    	        $('<tr><td>'+fnmbarang.val()+'<input type="hidden" name="nmbrg[]" value="'+fnmbarang.val()+'" / ></td>'+
+    	        '<td>'+fbrtbrg.val()+'<input type="hidden" name="brtbrg[]" value="'+fbrtbrg.val()+'" / ></td>'+
+    	        '<td>'+fnilaibrg.val()+'<input type="hidden" name="nilaibrg[]" value="'+fnilaibrg.val()+'" / ></td>'+
+    	        '<td>'+fkategori.children().filter(':selected').text()+'<input type="hidden" name="katbrg[]" value="'+fkategori.val()+'" / ></td>'+
+    	        '<td><a href="#">Delete</a></td></tr>').appendTo('#daftarbarang tbody');
+    	        fnmbarang.val('');
+    	        fbrtbrg.val('');
+    	        fnilaibrg.val('');
+			    $('tbody tr:odd').css('background-color','#c0f090');
+			    $('tbody tr:even').css('background-color','#f8f8f8');  
+			    $('#boolbrg').val('oke');  	        
+    	    }	    
+	    });
+	    
+	    $('#daftarbarang a').live('click',function(e){
+	        if($(e.target).text()=='Delete'){
+	            $(e.target).parent().parent().remove();
+	            if($('#daftarbarang tbody').children().first().text()==''){
+	                $('#boolbrg').val('');
+	            }
+			    $('tbody tr:odd').css('background-color','#c0f090');
+			    $('tbody tr:even').css('background-color','#f8f8f8');
+	        }
+	        return false;
+	    });	    
+	    $('#hitung').click(function(){
+	        if($('#boolbrg').val()==''){
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);
+                updateInfo('Masukkan barang terlebih dahulu');
+                return;
+	        }
+	        if($('#nmpengirim').val()==''){
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);
+                updateInfo('Isi Form terlebih dahulu');
+                return;	            
+	        }
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                data:$('#inputtrans').serialize(),
+                success:function(data){
+                    infjarak.text(data.jarak);
+                    infbiaya.text(data.total);
+                    biaya.val(data.total);
+                    infjmlitem.text(data.jmlitem);
+                    infkilat.text(data.kilat);
+                    infasuransi.text(data.asuransi);
+                },
+                error:function(e){                    
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    });
+		$("#logout").button({
+            icons: {
+                primary: 'ui-icon-power'
+            }}).click(function(){
+                //$('#dialog').dialog('open');
+            });
+            $("#tabs").tabs();
+		$('#konfirminsert').dialog({
+			autoOpen: false,
+			modal: true,
+			show: 'clip',
+			hide: 'clip',
+			resizable: false,
+			buttons: {
+				Ya: function() {
+					$(this).dialog('close');
+                    updateInfo('Proses simpan simpan transaksi',false);   
+                    $.ajax({
+                        url:'../../lib/ajax.php',
+                        type:'POST',
+                        timeout:10000,
+                        dataType: 'json',
+                        data:$('#inputtrans').serialize(),
+                        success:function(data){
+                            if(data.berhasil){
+                                $('#daftarbarang tbody').children().remove();
+                                updateInfo('Transaksi baru '+data.nama+' berhasil ditambahkan',false);
+                                $('#inputtrans input[type=text], textarea').val('');
+                            }else{
+                                updateInfo('Penyimpanan data transaksi baru gagal!',false);
+                            }
+                        },
+                        error:function(e){                    
+                            updateInfo('Terjadi kesalahan koneksi',false);
+                        }
+                    });					
+				},
+				'Tidak, saya belum yakin':function(){
+				    $(this).dialog('close');
+				}
+			}			
+		}); 
+        $('#kab_pengirim').change(function(){
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'POST',
+                timeout:10000,
+                dataType: 'json',
+                data:'op=getkec&idkec='+$(this).val(),
+                success:function(data){
+                        var cmbkec=$('#kec_pengirim');
+                        cmbkec.children().remove();
+                        for(var i=0;i<data.length;i++){
+                            $('<option value="'+data[i].id+'">'+data[i].nama+'</option>').appendTo(cmbkec);
+                        }
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    })			
+        $('#kab_penerima').change(function(){
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'POST',
+                timeout:10000,
+                dataType: 'json',
+                data:'op=getkec&idkec='+$(this).val(),
+                success:function(data){
+                        var cmbkec=$('#kec_penerima');
+                        cmbkec.children().remove();
+                        for(var i=0;i<data.length;i++){
+                            $('<option value="'+data[i].id+'">'+data[i].nama+'</option>').appendTo(cmbkec);
+                        }
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    })			
+	    
+		$('#inputtrans').validate({
+	        rules:{
+	            nmpengirim:"required",
+	            notelppengirim:"required",
+	            det_alamat_pengirim:"required",
+	            nmpenerima:"required",
+	            notelppenerima:"required",
+	            det_alamat_penerima:"required",
+	            tglkirim:"required",
+	            waktukirim:"required",
+	            boolbrg:"required"
+	            },
+	        messages:{
+	            nmpengirim:"Isikan nama pengirim",
+	            notelppengirim:"Isikan notelp pengirim",
+	            det_alamat_pengirim:"Masukkan alamat lengkap pengirim",
+	            nmpenerima:"Isikan nama penerima",
+	            notelppenerima:"Isikan notelp penerima",
+	            det_alamat_penerima:"Masukkan alamat lengkap penerima",
+	            tglkirim:"Pilih tgl pengiriman",
+	            waktukirim:"Masukkan waktu kirim",
+	            boolbrg:"Tambahkan barang yang akan dikirim"
+	        },
+            submitHandler: function() { 
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);
+                $('#hitung').click();
+                $('#konfirminsert').dialog('open');
+            }	        	    
+	    });
+		$('tbody tr:odd').css('background-color','#c0f090');
+		$('tbody tr:even').css('background-color','#f8f8f8');
+		
+		var tglkirim=$("#tglkirim"),waktukirim=$('#waktukirim');
+		tglkirim.datepicker($.datepicker.regional['id'])
+		.datepicker('option',{dateFormat:'yy-mm-dd'})
+		.datepicker('option', {showAnim: 'fadeIn'});
+		tglkirim.change(function(){
+		    var waktu=new Date();
+		    var jam=""+waktu.getHours(),menit=""+waktu.getMinutes(),detik=""+waktu.getSeconds();
+		    jam=(jam.length==1)?"0"+jam:jam;
+		    menit=(menit.length==1)?"0"+menit:menit;
+		    detik=(detik.length==1)?"0"+detik:detik;
+		    waktukirim.val(jam+':'+menit+':'+detik);
+		});
+	});
+</script>
+</html>

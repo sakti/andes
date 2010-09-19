@@ -1,0 +1,1897 @@
+<?php
+session_start();
+require_once('../../lib/koneksi.php');
+require_once('../../lib/auth.php');
+require_once('../../modules/kantor_cabang.php');
+require_once('../../modules/tracking.php');
+require_once('../../modules/pegawai.php');
+require_once('../../modules/keluhan.php');
+auth_page('administratif');
+$daftarkc=kc_getDaftarKC();
+$daftarrute=track_getDaftarRute();
+$daftarpegawai=pg_getDaftarPeg();
+$daftarkab=track_getDaftarKab();
+$daftarkec=track_getDaftarKecByKab($daftarkab[0]['id']);
+$daftarkelopen=kel_getKelByStatus('open');
+$daftarkelclose=kel_getKelByStatus('closed');
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>andes bagian administratif</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link type="text/css" href="../../css/south-street/jquery-ui-1.8.1.custom.css" rel="stylesheet" />
+    <link type="text/css" href="../../css/main.css" rel="stylesheet" />
+    <link type="text/css" href="../../css/dashboard.css" rel="stylesheet" />
+    <style type="text/css">
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="header">
+            <div id="panelid" class="ui-widget-content ui-corner-all">
+                <h1>Administratif Dashboard</h1>
+                <div>
+                    <a href="../control.php?op=logout"><button id="logout">Logout</button></a>
+                    <p><span class="nama"><?php echo $_SESSION['nama'];?></span></p><hr/>
+                    <p>Cabang: <?php echo $_SESSION['namakantorcabang'];?></p>
+                </div>
+            </div>
+            <a href="/index.php"><img src="../../images/small_logo.png"/></a>
+            <p><strong>An</strong>dromeda <strong>De</strong>livery <strong>S</strong>ystem</p>
+        </div>
+        <div id="panelinfo" class="ui-state-highlight ui-corner-all">
+	        <p><span style="float: left; margin-right: 0.3em;" class="ui-icon ui-icon-info"></span></p>
+	        <p>Silahkan pilih menu.</p>
+        </div>        
+        <div id="content">
+            <div id="tabs">
+	            <ul>
+		            <li><a href="#man_peg">Man. Pegawai</a></li>
+		            <li><a href="#man_kc">Man. Kantor Cabang</a></li>
+		            <li><a href="#man_kel" id="tabkeluhan">Man. Keluhan</a></li>
+		            <li><a href="#man_rute">Man. Rute</a></li>
+		            <li><a href="#laporan" id="tablaporan">Laporan PK</a></li>
+		            <li><a href="#faq">FAQ</a></li>
+	            </ul>
+	            <div id="man_peg">
+                    <form>
+		                <div class="submenu">
+			                <input type="radio" id="input_peg" name="rmman_peg" /><label for="input_peg">Input Pegawai</label>
+			                <input type="radio" id="lihat_peg" name="rmman_peg" /><label for="lihat_peg">Lihat Data Pegawai</label>
+			                <input type="radio" id="edit_peg" name="rmman_peg" /><label for="edit_peg">Edit Pegawai</label>
+			                <input type="radio" id="delete_peg" name="rmman_peg" /><label for="delete_peg">Delete Pegawai</label>
+		                </div>
+	                </form>	   
+<!-- letak disini--><p>Tempat manajemen pegawai</p>
+	                <div id="inputdatapeg" class="panelop">         
+		                <p>Input data Pegawai</p>
+		                <form id="inputpeg" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Data Pegawai</legend>
+		                    <input type="hidden" name="op" id="op_pegawai" value="inputpeg">
+		                    <label for="idpeg">Id Pegawai</label><input type="text" name="idpeg" id="idpeg" size="9" maxlength="9"/>
+		                    <label for="nmpeg">Nama Pegawai</label><input type="text" name="nmpeg" id="nmpeg" size="35" maxlength="60"/>
+		                    <label for="jk">Jenis Kelamin</label>
+		                    <select name="jk" id="jk">
+		                        <option value="l">Laki-laki</option>
+		                        <option value="p">Perempuan</option>
+		                    </select>
+		                    <label for="tgllhr">Tanggal Lahir</label><input type="text" name="tgllhr" id="tgllhr" size="14"/>
+		                    <label for="jabatan">Jabatan</label>
+		                    <select name="jabatan" id="jabatan">
+		                        <option value="customer service">Customer Service</option>
+		                        <option value="peg. pengiriman">Peg. Pengiriman</option>
+		                        <option value="administratif">Administratif</option>
+		                    </select>		                    
+                            <label for="notelp">No Telp</label>
+                            <input type="text" name="notelp" id="notelp" size="20" maxlength="20"/>
+		                    <label for="idkc">Kantor Cabang</label>
+		                    <select name="idkc" id="idkc">
+		                        <?php foreach($daftarkc as $kc): ?>
+		                        <option value="<?php echo $kc['id'];?>"><?php echo $kc['nama'];?></option>
+		                        <?php endforeach;?>
+		                    </select>                            
+                            <label for="password">Password</label>
+                            <input type="text" name="password" id="password" size="20" />
+                            </fieldset>                                  
+                            <fieldset id="detpp"> 
+                                <legend>Detail Peg. Pengiriman</legend>
+                                <label for="idrutepeg">Rute Pegawai</label>
+                                <select name="idrutepeg" id="idrutepeg">
+		                            <?php foreach($daftarrute as $rute): ?>
+		                            <option value="<?php echo $rute['id'];?>"><?php echo $rute['nama'];?></option>
+		                            <?php endforeach;?>
+                                </select>
+                            </fieldset>
+                            <input type="submit"  name="kirim" value="Proses" />
+                            <input type="reset"  name="hapus" value="Hapus" />
+		                </form>
+                    </div>
+	                <div id="lihatdatapeg" class="panelop">         
+		            <p>Lihat data Pegawai</p>
+		            <table id="daftarpegawai" class="tabel">
+		                <thead>
+		                    <tr><th>ID Pegawai</th><th>Nama Pegawai</th><th>Jabatan</th><th>Kantor Cabang</th><th>---</th></tr>
+		                </thead>
+		                <tbody>
+                            <?php foreach($daftarpegawai as $pegawai): ?>                                
+                            <tr>
+                                <td><?php echo $pegawai['id'];?></td>
+                                <td><?php echo $pegawai['nama'];?></td>
+                                <td><?php echo $pegawai['jabatan'];?></td>
+                                <td><?php echo $pegawai['nkc'];?></td>
+                                <td><a href="<?php echo $pegawai['id'];?>">Edit</a> &nbsp; &nbsp; <a href="<?php echo $pegawai['id'];?>">Delete</a></td>
+                            </tr>                                
+                            <?php endforeach;?>		                
+		                </tbody>
+		            </table>
+                    </div>
+	                <div id="editdatapeg" class="panelop">         
+		                <form id="editpeg" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Cek Data Pegawai</legend>
+		                    <label for="idpegedit">Id Pegawai yang akan diedit</label><input type="text" name="idpeg" id="idpegedit" size="9" maxlength="9"/>
+                            </fieldset>                                  
+		                         
+                            <input type="submit" name="kirim" value="Proses" />
+                            <input type="reset" name="hapus" value="Hapus" />
+		                </form>
+		                <form id="updatepeg" class="def_form" action="../control.php" method="post">	
+		                    <fieldset>	                
+                            <legend>Data Pegawai Baru</legend>
+		                    <input type="hidden" name="op" value="editpeg">
+		                    <input type="hidden" name="eidpeg" id="eidpeg" value="">
+		                    <label for="enmpeg">Nama Pegawai</label><input type="text" name="enmpeg" id="enmpeg" size="35" maxlength="60"/>
+		                    <label for="ejk">Jenis Kelamin</label>
+		                    <select name="ejk" id="ejk">
+		                        <option value="l">Laki-laki</option>
+		                        <option value="p">Perempuan</option>
+		                    </select>
+		                    <label for="etgllhr">Tanggal Lahir</label><input type="text" name="etgllhr" id="etgllhr" size="14"/>
+		                    <label for="ejabatan">Jabatan</label>
+		                    <select name="ejabatan" id="ejabatan">
+		                        <option value="customer service">Customer Service</option>
+		                        <option value="peg. pengiriman">Peg. Pengiriman</option>
+		                        <option value="administratif">Administratif</option>
+		                    </select>		                    
+                            <label for="enotelp">No Telp</label>
+                            <input type="text" name="enotelp" id="enotelp" size="20" maxlength="20"/>
+		                    <label for="eidkc">Kantor Cabang</label>
+		                    <select name="eidkc" id="eidkc">
+		                        <?php foreach($daftarkc as $kc): ?>
+		                        <option value="<?php echo $kc['id'];?>"><?php echo $kc['nama'];?></option>
+		                        <?php endforeach;?>
+		                    </select>                            
+                            <label for="epassword">Password</label>
+                            <input type="text" name="epassword" id="epassword" size="20" />
+                            </fieldset>                                  
+                            <fieldset id="edetpp"> 
+                                <legend>Detail Peg. Pengiriman Baru</legend>
+                                <label for="eidrutepeg">Rute Pegawai</label>
+                                <select name="eidrutepeg" id="eidrutepeg">
+		                            <?php foreach($daftarrute as $rute): ?>
+		                            <option value="<?php echo $rute['id'];?>"><?php echo $rute['nama'];?></option>
+		                            <?php endforeach;?>
+                                </select>
+                            </fieldset>                      
+                            <input type="submit"  name="kirim" value="Update" />
+                            <input type="reset"  name="batal" id="batalUpdatePeg" value="Batal" />
+		                </form>                            		                
+                    </div>
+                    
+	                <div id="deletedatapeg" class="panelop">         
+		                <form id="deletepeg" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Cek Data Pegawai</legend>
+		                    <label for="idpegdelete">Id Pegawai yang akan dihapus</label><input type="text" name="idpeg" id="idpegdelete" size="9" maxlength="9"/>
+                            </fieldset>                                  
+                            
+                            <input type="submit"  name="kirim" value="Proses" />
+                            <input type="reset"  name="hapus" value="Hapus" />
+		                </form>	
+		                <form id="konfirmdelete" class="def_form" action="../control.php" method="post">
+		                    <input type="hidden" name="didpeg" id="didpeg" value="">
+		                    <input type="hidden" name="op" value="deletepeg">
+		                    <fieldset>
+		                    <legend>Info pegawai yang ingin dihapus</legend>
+		                    <table id="infopeg" class="tabel">
+		                        <tbody>
+		                            <tr><td>ID Pegawai</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Nama Pegawai</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Jenis Kelamin</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Tgl Lahir</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Jabatan</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>No telp</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Kantor Cabang</td><td>Sakti Dwi Cahyono</td></tr>
+		                        </tbody>
+		                    </table>		       
+		                    </fieldset>
+                            <input type="submit"  name="kirim" value="Delete" />
+                            <input type="reset"  name="batal" id="batalDeletePeg" value="Batal" />		                    
+		                </form>         
+                    </div>                                                            
+	            </div>
+                <div id="man_kc">
+                    <form>
+		                <div class="submenu">
+			                <input type="radio" id="input_kc" name="rmman_kc" /><label for="input_kc">Input Kan. Cabang</label>
+			                <input type="radio" id="lihat_kc" name="rmman_kc" /><label for="lihat_kc">Lihat Kan. Cabang</label>
+			                <input type="radio" id="edit_kc" name="rmman_kc" /><label for="edit_kc">Edit Kan. Cabang</label>
+			                <input type="radio" id="delete_kc" name="rmman_kc" /><label for="delete_kc">Delete Kan. Cabang</label>
+		                </div>
+	                </form>	                 
+		            <p> Tempat mengedit kantor cabang.</p>
+	                <div id="inputdatakc" class="panelop">         
+		                <p>Input data KC</p>
+		                <form id="inputkc" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Data Kantor Cabang</legend>
+		                        <input type="hidden" name="op" id="op_kc" value="inputkc">
+		                        <label for="namakc">Nama Kantor Cabang</label><input type="text" name="namakc" id="namakc" size="30" maxlength="60"/>
+		                        <label for="notelpkc">No. Telp</label><input type="text" name="notelpkc" id="notelpkc" size="20" maxlength="20"/>
+		                        <label for="idkab">Kabupaten</label>
+		                        <select name="idkab" id="idkab">
+		                            <?php foreach($daftarkab as $kab): ?>
+		                            <option value="<?php echo $kab['id'];?>"><?php echo $kab['nama'];?></option>
+		                            <?php endforeach;?>		                        
+		                        </select>
+		                        <label for="idkec">Kecamatan</label>
+		                        <select name="idkec" id="idkec">
+		                            <?php foreach($daftarkec as $kec): ?>
+		                            <option value="<?php echo $kec['id'];?>"><?php echo $kec['nama'];?></option>
+		                            <?php endforeach;?>
+		                        </select>	
+		                        <label for="detalamatkc">Detail Alamat</label>
+		                        <textarea name="detalamatkc" id="detalamatkc"></textarea>
+	                    
+                            </fieldset>
+                            <input type="submit"  name="kirim" value="Simpan" />
+                            <input type="reset"  name="hapus" value="Hapus" />
+		                </form>
+                    </div>	
+	                <div id="lihatdatakc" class="panelop">         
+		                <p>Lihat data KC</p>
+		                <table id="daftarkantor" class="tabel">
+		                    <thead>
+		                        <tr><th>Id Kantor</th><th>Nama Kantor</th><th>Kabupaten</th><th>Kecamatan</th><th>Det. Alamat</th><th>No Telp</th><th>---</th></tr>
+		                    </thead>
+		                    <tbody>
+                                <?php foreach($daftarkc as $kc): ?>                                
+                                <tr>
+                                    <td><?php echo $kc['id'];?></td>
+                                    <td><?php echo $kc['nama'];?></td>
+                                    <td><?php echo $kc['nmkab'];?></td>
+                                    <td><?php echo $kc['nmkec'];?></td>
+                                    <td><?php echo $kc['detalamat'];?></td>
+                                    <td><?php echo $kc['notelp'];?></td>
+                                    <td><a href="<?php echo $kc['id'];?>">Edit</a> &nbsp; &nbsp; <a href="<?php echo $kc['id'];?>">Delete</a></td>
+                                </tr>                                
+                                <?php endforeach;?>		                
+		                    </tbody>
+		                </table>
+                    </div>		                    	            
+	                <div id="editdatakc" class="panelop">         
+		                <p>Edit data KC</p>
+		                <form id="editkc" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Cek Data Kantor Cabang</legend>
+		                    <label for="idpegedit">Id Kantor cabang yang akan diedit</label><input type="text" name="idkc" id="idkcedit" size="9"/>
+                            </fieldset>                                  
+		                         
+                            <input type="submit"  name="kirim" value="Proses" />
+                            <input type="reset"  name="hapus" value="Hapus" />
+		                </form>
+		                <form id="updatekc" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Data Kantor Cabang</legend>
+		                        <input type="hidden" name="op" value="editkc">
+		                        <input type="hidden" name="editidkc" id="editidkc" value="">
+		                        <label for="enamakc">Nama Kantor Cabang</label><input type="text" name="enamakc" id="enamakc" size="30" maxlength="60"/>
+		                        <label for="enotelpkc">No. Telp</label><input type="text" name="enotelpkc" id="enotelpkc" size="20" maxlength="20"/>
+		                        <label for="eidkab">Kabupaten</label>
+		                        <select name="eidkab" id="eidkab">
+		                            <?php foreach($daftarkab as $kab): ?>
+		                            <option value="<?php echo $kab['id'];?>"><?php echo $kab['nama'];?></option>
+		                            <?php endforeach;?>		                        
+		                        </select>
+		                        <label for="eidkec">Kecamatan</label>
+		                        <select name="eidkec" id="eidkec">
+		                            <?php foreach($daftarkec as $kec): ?>
+		                            <option value="<?php echo $kec['id'];?>"><?php echo $kec['nama'];?></option>
+		                            <?php endforeach;?>
+		                        </select>	
+		                        <label for="edetalamatkc">Detail Alamat</label>
+		                        <textarea name="edetalamatkc" id="edetalamatkc"></textarea>
+	                    
+                            </fieldset>
+                            <input type="submit"  name="kirim" value="Update" />
+                            <input type="reset"  name="hapus" id="batalUpdateKC" value="Batal" />
+		                </form>		                
+                    </div>	 
+	                <div id="deletedatakc" class="panelop">         
+		                <p>Delete data Kantor Cabang</p>
+		                <form id="deletekc" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Cek Data Kantor Cabang</legend>
+		                    <label for="idpegedit">Id Kantor cabang yang akan dihapus</label><input type="text" name="idkc" id="idkcdelete" size="9"/>
+                            </fieldset>                                  
+		                         
+                            <input type="submit"  name="kirim" value="Proses" />
+                            <input type="reset"  name="hapus" value="Hapus" />
+		                </form>
+		                <form id="konfirmdeletekc" class="def_form" action="../control.php" method="post">
+		                    <input type="hidden" name="didkc" id="didkc" value="">
+		                    <input type="hidden" name="op" value="deletekc">
+		                    <fieldset>
+		                    <legend>Info Kantor Cabang yang akan dihapus</legend>
+		                    <table id="infokantor" class="tabel">
+		                        <tbody>
+		                            <tr><td>ID Kantor Cabang</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Nama Kantor Cabang</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Kabupaten</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Kecamatan</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>Det. Alamat</td><td>Sakti Dwi Cahyono</td></tr>
+		                            <tr><td>No telp</td><td>Sakti Dwi Cahyono</td></tr>
+		                        </tbody>
+		                    </table>		       
+		                    </fieldset>
+                            <input type="submit"  name="kirim" value="Delete" />
+                            <input type="reset"  name="batal" id="batalDeleteKC" value="Batal" />		                    
+		                </form> 		                
+                    </div>	                                       
+	            </div>  
+                <div id="man_kel">
+<!-- penambahan -->
+                    <h3>Keluhan status OPEN</h3>
+                    <table id="headkelopen" class="tabel">
+                        <thead>
+                            <tr><th>ID Transaksi</th><th>Tanggal Waktu</th><th>Deskripsi</th><th>----</th></tr>
+                        <thead>
+                        <tbody>
+                            <?php foreach($daftarkelopen as $kel): ?>
+                            <tr><td><?php echo $kel['idtransaksi']; ?></td><td><?php echo $kel['tglwaktu']; ?></td><td><?php echo $kel['deskripsi']; ?></td><td><a href="<?php echo $kel['idtransaksi']; ?>">Respon</a></td></tr>
+                            <?php endforeach;?>
+                        </tbody>
+                    </table>		            
+                    <h3>Keluhan status CLOSED</h3>
+                    <table id="headkelclosed" class="tabel">
+                        <thead>
+                            <tr><th>ID Transaksi</th><th>Tanggal Waktu</th><th>Deskripsi</th><th>----</th></tr>
+                        <thead>
+                        <tbody>
+                            <?php foreach($daftarkelclose as $kel): ?>
+                            <tr><td><?php echo $kel['idtransaksi']; ?></td><td><?php echo $kel['tglwaktu']; ?></td><td><?php echo $kel['deskripsi']; ?></td><td><a href="<?php echo $kel['idtransaksi']; ?>">Respon</a></td></tr>
+                            <?php endforeach;?>
+                        </tbody>
+                    </table>
+                    
+                    <form id="infokeluhan" class="def_form">   
+		            <h3>Informasi Pengiriman</h3>		            
+                    <table id="infokirimankel" class="tabel">
+                        <tbody>
+                            <tr><td>ID/No Pengiriman</td><td>Sakti Dwi Cahyono</td></tr>
+                            <tr><td>Nama Pengirim</td><td>Sakti Dwi Cahyono</td></tr>
+                            <tr><td>Alamat Pengirim</td><td>Sakti Dwi Cahyono</td></tr>
+                            <tr><td>Notelp Pengirim</td><td>Sakti Dwi Cahyono</td></tr>
+                            <tr><td>Nama Penerima</td><td>Sakti Dwi Cahyono</td></tr>
+                            <tr><td>Alamat Penerima</td><td>Sakti Dwi Cahyono</td></tr>
+                            <tr><td>Notelp Penerima</td><td>Sakti Dwi Cahyono</td></tr>
+                            <tr><td>Asuransi</td><td>Sakti Dwi Cahyono</td></tr>                            
+                            <tr><td>Kilat</td><td>Sakti Dwi Cahyono</td></tr>                            
+                            <tr><td>Status</td><td>Sakti Dwi Cahyono</td></tr>                            
+                            <tr><td>Biaya</td><td>Sakti Dwi Cahyono</td></tr>                            
+                        </tbody>
+                    </table>		                     
+                    <h3>Keluhan</h3>             
+                    <div id="daftarkeluhan">
+                        <p class="first"><span class="tgl">2010-05-14 03:28:01</span> <span class="anda">Anda</span>
+                        <span class="open">open</span>
+                        <span class="closed">closed</span>
+                        <br/><br/>
+                        <strong>Blm ada keluhan</strong>
+                        et facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellen</p>
+                    </div>
+                    <fieldset id="paneltambahkel">      
+                        <label for="isikeluhan">Isi Keluhan anda</label>
+                        <textarea name="isikeluhan" id="isikeluhan" style="width:100%;max-width:650px">
+                        </textarea>
+                        <hr/>
+                        <input type="checkbox" id="statkel" /><label for="statkel">CLOSED</label>
+                        <hr/>
+                        <input type="button" id="tambahkel" value="Respon keluhan" /><input type="button" id="keluarkeluhan" value="Keluar" />
+                        
+                    </fieldset>
+                    </form>		            
+<!-- penambahan -->                    
+	            </div>  
+                <div id="man_rute">
+                    <form>
+		                <div class="submenu">
+			                <input type="radio" id="input_rute" name="rmman_rute" /><label for="input_rute">Input Rute</label>
+			                <input type="radio" id="lihat_rute" name="rmman_rute" /><label for="lihat_rute">Lihat Rute</label>
+			                <input type="radio" id="edit_rute" name="rmman_rute" /><label for="edit_rute">Edit Rute</label>
+		                </div>
+	                </form>	                
+		            <p> Pengaturan rute.</p>
+	                <div id="inputdatarute" class="panelop">         
+		                <p>Input data Rute</p>
+		                <form id="inputrute" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Informasi Rute</legend>
+		                    <label for="nmrute">Nama rute</label>
+		                    <input type="text" name="nmrute" id="nmrute" size="25" maxlength="40"/>
+		                    <input type="hidden" name="booldetrute" id="booldetrute" val="" />
+		                    <input type="hidden" name="op" value="inputrute"/>
+		                    <label>Jalur rute</label>
+		                    <table id="detailrute" class="tabel">
+		                        <thead>
+		                            <tr><th>Kantor cabang atau kecamatan/kota</th><th>---</th></tr>
+		                        </thead>
+		                        <tbody>
+		                                        
+		                        </tbody>
+		                    </table>	
+		                    <input type="button"  value="Tambah" id="tambahposrute">	                    
+                            </fieldset>                                  
+		                         
+                            <input type="submit"  name="kirim" value="Simpan" />
+                            <input type="reset"  name="hapus" value="Hapus" />
+		                </form>
+                    </div>	
+	                <div id="lihatdatarute" class="panelop">         
+		                <p>Lihat data Rute</p>
+		            <table id="daftarrute" class="tabel">
+		                <thead>
+		                    <tr><th>ID Rute</th><th>Nama Rute</th><th>Detail Rute</th><th>---</th></tr>
+		                </thead>
+		                <tbody>
+                            <?php foreach($daftarrute as $rute): ?>
+                            <tr>
+                                <td><?php echo $rute['id'];?></td>
+                                <td><?php echo $rute['nama'];?></td>                                
+                                <td>
+                                    <?php foreach($rute['detail'] as $detrut): ?>
+                                        <?php echo '('.$detrut['nmkab'].')'.$detrut['nmkec']." - ";?>
+                                    <?php endforeach;?>		                
+                                </td>
+                                <td><a href="<?php echo $rute['id'];?>">Edit</a></td>
+                            </tr>                                
+                            <?php endforeach;?>		                
+		                </tbody>
+		            </table>
+                    </div>		                    	            
+	                <div id="editdatarute" class="panelop">         
+		                <p>Edit data Rute</p>
+		                <form id="editrute" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Cek Data Rute</legend>
+		                    <label for="idruteedit">Id rute yang akan diedit</label><input type="text" name="idrute" id="idruteedit" size="9"/>
+                            </fieldset>                                      
+                            <input type="submit"  name="kirim" value="Proses" />
+                            <input type="reset"  name="hapus" value="Hapus" />
+		                </form>
+		                <form id="updaterute" class="def_form" action="../control.php" method="post">
+		                    <fieldset>
+		                    <legend>Informasi Rute</legend>
+		                    <label for="enmrute">Nama rute</label>
+		                    <input type="text" name="enmrute" id="enmrute" size="25" maxlength="40"/>
+		                    <input type="hidden" name="ebooldetrute" id="ebooldetrute" val="" />
+		                    <input type="hidden" name="eidrute" id="eidrute" val=""/>
+		                    <input type="hidden" name="op" value="editrute"/>
+		                    <label>Jalur rute</label>
+		                    <table id="edetailrute" class="tabel">
+		                        <thead>
+		                            <tr><th>Kantor cabang atau kecamatan/kota</th><th>---</th></tr>
+		                        </thead>
+		                        <tbody>
+		                                        
+		                        </tbody>
+		                    </table>	
+		                    <input type="button"  value="Tambah" id="etambahposrute">	                    
+                            </fieldset>                                  
+		                         
+                            <input type="submit"  name="kirim" value="Update" />
+                            <input type="reset"  name="hapus" value="Batal" id="batalUpdateRute"/>
+		                </form>		                
+                    </div>	 			            
+	            </div>  	            	            	            
+                <div id="laporan">
+		            <h3> Laporan Pendapatan kotor minggu ini. (Minggu ke-<span id="idminggu"><?php echo date('W');?></span>).</h3>
+		            <div id="graphminggu" style="width:680px;height:300px">
+	                </div>  
+
+	                <hr/>
+	                <h3> Laporan Pendapatan kotor bulan ini. (Bulan ke-<span id="idbulan"><?php echo date('n');?></span> <?php echo date('F');?>)</h3>
+	                <div id="graphbulan" style="width:680px;height:300px">
+	                </div>           	            
+
+	                <hr/>
+	                <h3> Laporan Pendapatan kotor tahun ini. (Tahun <span id="idtahun"><?php echo date('Y');?></span>)</h3>
+	                <div id="graphtahun" style="width:680px;height:300px">
+	                </div>        	            
+	            <div id="faq">
+		            <p>Fruquenly Asked Question.</p>
+	            </div>
+            </div>                
+        </div>
+        <div id="footer" class="ui-corner-all">
+            Under development &copy; 2010
+        </div>
+        <div id="dialoghpspeg" title="Konfirmasi Hapus Pegawai">
+	        <p>Operasi hapus data pegawai tidak dijamin berhasil 100% dikarenakan kemungkinan data yang ingin anda hapus masih dipakai dibeberapa tabel yang lain</p>
+	        <p>Apakah anda yakin menghapus pegawai ini?</p>
+        </div>        
+        <div id="dialoghpskc" title="Konfirmasi Hapus Kantor Cabang">
+	        <p>Operasi hapus tidak selamanya berhasil</p>
+	        <p>Apakah anda yakin menghapus kantor cabang ini?</p>
+        </div>
+        <div id="dialogtbhrute" title="Pilih kantor cabang atau kecamatan">
+	        <p>Silahkan pilih posisi untuk rute tambahan.</p>
+	        <form class="def_form">
+	        <fieldset>
+	            <label for="idkcrute">Kantor Cabang</label>
+                <select name="idkcrute" id="idkcrute">
+                    <option value="kosong">--------</option>
+                    <?php foreach($daftarkc as $kc): ?>
+                    <option value="<?php echo $kc['id'];?>,<?php echo $kc['idkecamatan'];?>"><?php echo $kc['nama'];?></option>
+                    <?php endforeach;?>
+                </select>	        
+            </fieldset>    
+            <div id="optpos">
+            <fieldset>
+                <label for="idkabrute">Kabupaten</label>
+                <select name="idkabrute" id="idkabrute">
+                    <?php foreach($daftarkab as $kab): ?>
+                    <option value="<?php echo $kab['id'];?>"><?php echo $kab['nama'];?></option>
+                    <?php endforeach;?>		                        
+                </select>
+                <label for="idkecrute">Kecamatan</label>
+                <select name="idkecrute" id="idkecrute">
+                    <?php foreach($daftarkec as $kec): ?>
+                    <option value="<?php echo $kec['id'];?>"><?php echo $kec['nama'];?></option>
+                    <?php endforeach;?>
+                </select>
+            </fieldset>
+            </div>                            
+	        </form>
+        </div>
+        <div id="dialogetbhrute" title="Pilih kantor cabang atau kecamatan">
+	        <p>Silahkan pilih posisi untuk rute selanjutnya.</p>
+	        <form class="def_form">
+	        <fieldset>
+	            <label for="eidkcrute">Kantor Cabang</label>
+                <select name="eidkcrute" id="eidkcrute">
+                    <option value="kosong">--------</option>
+                    <?php foreach($daftarkc as $kc): ?>
+                    <option value="<?php echo $kc['id'];?>,<?php echo $kc['idkecamatan'];?>"><?php echo $kc['nama'];?></option>
+                    <?php endforeach;?>
+                </select>	        
+            </fieldset>    
+            <div id="eoptpos">
+            <fieldset>
+                <label for="eidkabrute">Kabupaten</label>
+                <select name="eidkabrute" id="eidkabrute">
+                    <?php foreach($daftarkab as $kab): ?>
+                    <option value="<?php echo $kab['id'];?>"><?php echo $kab['nama'];?></option>
+                    <?php endforeach;?>		                        
+                </select>
+                <label for="eidkecrute">Kecamatan</label>
+                <select name="eidkecrute" id="eidkecrute">
+                    <?php foreach($daftarkec as $kec): ?>
+                    <option value="<?php echo $kec['id'];?>"><?php echo $kec['nama'];?></option>
+                    <?php endforeach;?>
+                </select>
+            </fieldset>
+            </div>                            
+	        </form>
+        </div>                 
+    </div>
+</body>
+<script type="text/javascript" src="../../js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="../../js/jquery-ui-1.8.1.custom.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.bgiframe-2.1.1.js"></script>
+<script type="text/javascript" src="../../js/jquery.ui.datepicker-id.js"></script>
+<script type="text/javascript" src="../../js/jquery.validate.js"></script>
+<script type="text/javascript" src="../../js/jquery.flot.min.js"></script>
+<!--[if IE]><script language="javascript" type="text/javascript" src="../../js/excanvas.min.js"></script><![endif]-->
+<script type="text/javascript">
+	$(function() {
+	    var pnlInputDataPeg=$('#inputdatapeg'),pnlLihatDataPeg=$('#lihatdatapeg'),pnlEditDataPeg=$('#editdatapeg'),
+	        pnlDeleteDataPeg=$('#deletedatapeg'),pnlInfo=$('#panelinfo'),dlghpspeg=$('#dialoghpspeg'),ftgllhr=$('#tgllhr'),fpassword=$('#password'),
+	        pnlInputDataKC=$('#inputdatakc'),pnlEditDataKC=$('#editdatakc'),pnlLihatDataKC=$('#lihatdatakc'),pnlDeleteDataKC=$('#deletedatakc'),
+	        pnlInputDataRute=$('#inputdatarute'),pnlLihatDataRute=$('#lihatdatarute'),pnlEditDataRute=$('#editdatarute'),
+	        dlghpskc=$('#dialoghpskc'),dlgtbhrute=$('#dialogtbhrute'),dlgetbhrute=$('#dialogetbhrute');
+/********************
+koding untuk Laporan PK
+
+******************/	  
+        function showTooltip(x, y, contents) {
+            $('<div id="tooltip">' + contents + '</div>').css( {
+                position: 'absolute',
+                display: 'none',
+                top: y + 5,
+                left: x + 5,
+                border: '1px solid #16a61f',
+                padding: '5px',
+                'font-size':'13pt',
+                'font-weight':'bold',
+                'background-color': '#dfebb0',
+                opacity: 0.50
+            }).appendTo("body").fadeIn(200);
+        }
+        $('#tablaporan').click(function(){
+            updateInfo('Laporan');
+            setTimeout(buatLaporan,2000);
+        });
+        
+        function buatLaporan(){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getlaporan',
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                   $.plot($('#graphminggu'), [ data.minggu ], {
+                        xaxis:{
+                            ticks:[[0,"Minggu"],[1,"Senin"],[2,"Selasa"],[3,"Rabu"],[4,"Kamis"],[5,"Jum'at"],[6,"Sabtu"]],
+                        },
+                        grid: {
+                            backgroundColor: { colors: ["#f8f8f8", "#ededed"] },
+                            hoverable: true, clickable: true 
+                        },
+                        points: { show: true },
+                        lines: { show: true }
+                      });
+                    var previousPoint = null; 
+                    $('#graphminggu').bind("plothover", function (event, pos, item) {  
+                        if (item) {           
+                        if (previousPoint != item.datapoint) {
+                                previousPoint = item.datapoint;                              
+                                $("#tooltip").remove();
+                                var y = item.datapoint[1].toFixed(2);
+                                showTooltip(item.pageX, item.pageY,"Rp. " + y);
+                            }
+                        }else{
+                            $("#tooltip").remove();
+                            previousPoint = null;                 
+                        }
+                    }); 
+                    
+                    $.plot($('#graphbulan'), [ data.bulan ],  
+                      { 
+                        points: { show: true },
+                        hoverable:true,
+                        lines: { show: true },
+                        grid: {
+                            backgroundColor: { colors: ["#f8f8f8", "#ededed"] },
+                            hoverable: true, clickable: true 
+                        }                
+                      });
+                    var ppbln = null; 
+                    $('#graphbulan').bind("plothover", function (event, pos, item) {  
+                        if (item) {           
+                        if (ppbln != item.datapoint) {
+                                ppbln = item.datapoint;                              
+                                $("#tooltip").remove();
+                                var y = item.datapoint[1].toFixed(2);
+                                showTooltip(item.pageX, item.pageY,"Rp. " + y);
+                            }
+                        }else{
+                            $("#tooltip").remove();
+                            ppbln = null;                 
+                        }
+                    });              
+                    $.plot($('#graphtahun'), [ data.tahun ], { 
+                        xaxis:{
+                            ticks:[[1,"Januari"],[2,"Februari"],[3,"Maret"],[4,"April"],[5,"Mei"],[6,"Juni"],[7,"Juli"],[8,"Agustus"],[9,"September"],[10,"Oktober"],[11,"November"],[12,"Desember"]],
+                        },
+                        grid: {
+                            backgroundColor: { colors: ["#f8f8f8", "#ededed"] },
+                            hoverable: true, clickable: true 
+                        },
+                        points: { show: true },
+                        hoverable:true,
+                        lines: { show: true }
+                      });
+                    var ppthn = null; 
+                    $('#graphtahun').bind("plothover", function (event, pos, item) {  
+                        if (item) {           
+                        if (ppthn != item.datapoint) {
+                                ppthn = item.datapoint;                              
+                                $("#tooltip").remove();
+                                var y = item.datapoint[1].toFixed(2);
+                                showTooltip(item.pageX, item.pageY,"Rp. " + y);
+                            }
+                        }else{
+                            $("#tooltip").remove();
+                            ppthn = null;                 
+                        }
+                    });                                              							                    
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });                         
+        }
+/********
+akhir kode laporan pk
+****/
+	        
+/********************
+koding untuk man. keluhan
+
+******************/	  
+        var infokeluhan=$('#infokeluhan'),btntambahkel=$('#tambahkel'),isikeluhan=$('#isikeluhan'),daftarkeluhan=$('#daftarkeluhan'),
+	        keluarkeluhan=$('#keluarkeluhan'),tmpidtran=0,btnstatkel=$('#statkel');
+	        
+	    btnstatkel.click(function(){
+	        if(btnstatkel.attr('checked')){
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:'op=setstatuskel&idtrans='+tmpidtran+'&status=closed',
+                    success:function(data){
+                        if(data){
+                            updateInfo('Status keluhan telah diganti',false);
+                        }else{
+                            updateInfo('Update status keluhan gagal!',false);
+                        }
+                        $('body').scrollTop(0);
+                        $('html').scrollTop(0);  
+                        updateListKeluhan(tmpidtran);
+                        $('#tabkeluhan').click();
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });	            
+	        }else{
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:'op=setstatuskel&idtrans='+tmpidtran+'&status=open',
+                    success:function(data){
+                        if(data){
+                            updateInfo('Status keluhan telah diganti',false);
+                        }else{
+                            updateInfo('Update status keluhan gagal!',false);
+                        }
+                        $('body').scrollTop(0);
+                        $('html').scrollTop(0);  
+                        updateListKeluhan(tmpidtran);
+                        $('#tabkeluhan').click();
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });
+	        }
+	    });   
+        $('#tabkeluhan').click(function(){
+            //alert('dipanggil');
+            updateInfo("Refresh Data");
+            $.ajax({
+                url:'../../lib/ajax.php?op=getallkeltrans',
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    var bodyopen=$('#headkelopen tbody'),bodyclosed=$('#headkelclosed tbody');
+                    bodyopen.children().remove();
+                    bodyclosed.children().remove();
+                    for(i=0;i<data.length;i++){
+                        if(data[i].stat=='open'){
+                            $('<tr><td>'+data[i].idtransaksi+'</td><td>'+data[i].tglwaktu+'</td><td>'+data[i].deskripsi+'</td><td><a href="'+data[i].idtransaksi+'">Respon</a></td></tr>').appendTo(bodyopen);
+                        }else{
+                            $('<tr><td>'+data[i].idtransaksi+'</td><td>'+data[i].tglwaktu+'</td><td>'+data[i].deskripsi+'</td><td><a href="'+data[i].idtransaksi+'">Respon</a></td></tr>').appendTo(bodyclosed);
+                        }
+                    }
+                    $('tbody tr:odd').css('background-color','#c0f090');
+		            $('tbody tr:even').css('background-color','#f8f8f8');                            							                    
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });            
+        });
+        $('#headkelopen a').live('click',function(e){
+            updateInfo('Respon keluhan id ' + $(e.target).attr('href'));
+            updateinfokirimankel($(e.target).attr('href'));
+            updateListKeluhan($(e.target).attr('href'));
+            tmpidtran=$(e.target).attr('href');
+            return false;
+        });
+        $('#headkelclosed a').live('click',function(e){
+            updateInfo('Respon keluhan id ' + $(e.target).attr('href'));
+            updateinfokirimankel($(e.target).attr('href'));
+            updateListKeluhan($(e.target).attr('href'));
+            tmpidtran=$(e.target).attr('href');
+            return false;
+        });
+	    function nl2br(kata){
+	        return kata.replace(/\n/g,'<br>');
+	    }
+	    keluarkeluhan.click(function(){
+	        infokeluhan.slideUp('slow');
+	    });
+	    function updateListKeluhan(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getkeltrans&idtrans='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    daftarkeluhan.children().remove();
+                    var status='';
+                    if(data==false){
+                        $('<p class="first"><strong>Keluhan belum ada</strong></p>').appendTo(daftarkeluhan);      
+                    }else{
+                        if(data.stat=='open'){
+                            status='<span class="open">open</span>';
+                        }else{
+                            btnstatkel.attr('checked','checked');
+                            status='<span class="closed">closed</span>';
+                        }
+                        $('<p class="first"><span class="tgl">'+data.tglwaktu+'</span>'+
+                        '<span class="anda">Anda</span>'+status+
+                        '<br><br>'+nl2br(data.deskripsi)+'</p>').appendTo(daftarkeluhan);                                                
+                    }
+                    for(var i=0;i<data.respon.length;i++){
+                        var asal='';
+                        if(data.respon[i].idpegawai==null){
+                            asal='<span class="anda">Anda</span>';
+                        }else{
+                            asal='<span class="ptgs">Petugas</span>';
+                        }
+                        $('<p><span class="tgl">'+data.respon[i].tglwaktu+'</span>'+asal+'<br><br>'+
+                        nl2br(data.respon[i].deskripsi)+'</p>').appendTo(daftarkeluhan);
+                    }                    
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	    	    
+	    }    
+        btntambahkel.click(function(){
+            if(isikeluhan.val().trim()==''){
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);            
+                updateInfo('Isikan pesan anda terlebih dahulu',false);
+                return;
+            }
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'POST',
+                timeout:10000,
+                dataType: 'json',
+                data:'op=tambahpesankel&idtrans='+tmpidtran+'&pesan='+isikeluhan.val().trim()+'&idpeg=<?php echo $_SESSION['id']; ?>',
+                success:function(data){
+                    if(data){
+                        updateInfo("Pesan keluhan berhasil ditambahkan");
+                        updateListKeluhan(tmpidtran);
+                        isikeluhan.val('');
+                    }else{
+                        updateInfo("Penambahan pesan keluhan gagal");
+                    }
+                },
+                error:function(e){                    
+                    updateInf('Terjadi kesalahan koneksi',false);
+                }
+            });            
+        });	 
+		infokeluhan.hide(); 
+		function updateinfokirimankel(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getinfotrans&id='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    var nilai=[],i=0;
+                    nilai[0]=data.id;
+                    nilai[1]=data.namapengirim;
+                    nilai[2]=data.kabpengirim+', '+data.kecpengirim+', '+data.detalamatpengirim;
+                    nilai[3]=data.notelppengirim;
+                    nilai[4]=data.namapenerima;
+                    nilai[5]=data.kabpenerima+', '+data.kecpenerima+', '+data.detalamatpenerima;
+                    nilai[6]=data.notelppenerima;
+                    nilai[7]=(data.asuransi=='y')?'Ya':'Tidak';
+                    nilai[8]=(data.kilat=='y')?'Ya':'Tidak';
+                    nilai[9]=data.deskripsi;
+                    nilai[10]=data.biaya;
+                    $('#infokirimankel tr').each(function(){
+                        $(this).children().last().text(nilai[i++]);
+                    });
+                    infokeluhan.slideDown('slow');
+                },
+                error:function(e){                   
+                    updateInf('Terjadi kesalahan koneksi',false);
+                }
+            });		
+		}				    
+	            
+/********
+akhir kode man.keluhan
+****/   
+		dlgetbhrute.dialog({
+		    autoOpen: false,
+		    height: 350,
+		    width: 300,
+		    modal: true,
+		    buttons: {
+			    Tambahkan: function() {
+			            var info='',nilai='';
+			            if($('#eidkcrute').val()=='kosong'){
+                            info=$('#eidkabrute :selected').text()+', '+$('#eidkecrute :selected').text();
+                            nilai=$('#eidkcrute').val()+','+$('#eidkecrute').val();
+			            }else{
+			                info='Kantor Cabang :'+$('#eidkcrute :selected').text();			            
+			                nilai=$('#eidkcrute').val();
+			            }
+			            
+                        $('#edetailrute tbody').append('<tr>' +
+							'<td>' + info + '</td>' + 
+							'<td><input type="hidden" name="edetrute[]" value="'+nilai+'"><a href="#">Hapus</a></td>' + 
+							'</tr>');
+		                $('tbody tr:odd').css('background-color','#c0f090');
+		                $('tbody tr:even').css('background-color','#f8f8f8');                            							
+						$(this).dialog('close');
+						$('tbody tr:odd').css('background-color','#c0f090');
+						$('#ebooldetrute').val($('#eidkcrute').val());
+			    },
+			    Batal: function() {
+				    $(this).dialog('close');
+			    }
+		    },
+		    close: function() {
+			    //alert('keluar');
+		    }
+		});
+		
+		dlgtbhrute.dialog({
+		    autoOpen: false,
+		    height: 350,
+		    width: 300,
+		    modal: true,
+		    buttons: {
+			    Tambahkan: function() {
+			            var info='',nilai='';
+			            if($('#idkcrute').val()=='kosong'){
+                            info=$('#idkabrute :selected').text()+', '+$('#idkecrute :selected').text();
+                            nilai=$('#idkcrute').val()+','+$('#idkecrute').val();
+			            }else{
+			                info='Kantor Cabang :'+$('#idkcrute :selected').text();			            
+			                nilai=$('#idkcrute').val();
+			            }
+			            
+                        $('#detailrute tbody').append('<tr>' +
+							'<td>' + info + '</td>' + 
+							'<td><input type="hidden" name="detrute[]" value="'+nilai+'"><a href="#">Hapus</a></td>' + 
+							'</tr>');
+						$(this).dialog('close');
+			            $('tbody tr:odd').css('background-color','#c0f090');
+			            $('tbody tr:even').css('background-color','#f8f8f8');    						
+						$('tbody tr:odd').css('background-color','#c0f090');
+						$('#booldetrute').val($('#idkcrute').val());
+			    },
+			    Batal: function() {
+				    $(this).dialog('close');
+			    }
+		    },
+		    close: function() {
+			    //alert('keluar');
+		    }
+		});
+        $('#detailrute tbody').live('click',function(e){
+            if($(e.target).text()=='Hapus'){
+	            $(e.target).parent().parent().remove();
+	            if($('#detailrute tbody').children().first().text()==''){
+	                $('#booldetrute').val('');
+	            }
+			    $('tbody tr:odd').css('background-color','#c0f090');
+			    $('tbody tr:even').css('background-color','#f8f8f8');            
+            }
+	        return false;        
+        });
+        $('#edetailrute tbody').live('click',function(e){
+            if($(e.target).text()=='Hapus'){
+	            $(e.target).parent().parent().remove();
+	            if($('#edetailrute tbody').children().first().text()==''){
+	                $('#ebooldetrute').val('');
+	            }
+			    $('tbody tr:odd').css('background-color','#c0f090');
+			    $('tbody tr:even').css('background-color','#f8f8f8');            
+            }
+	        return false;        
+        });
+        
+		$('#idkcrute').change(function(){
+		    if($(this).val()=='kosong'){
+		        $('#optpos').fadeIn();
+		    }else{
+		        $('#optpos').fadeOut();
+		    }
+		});
+		$('#eidkcrute').change(function(){
+		    if($(this).val()=='kosong'){
+		        $('#eoptpos').fadeIn();
+		    }else{
+		        $('#eoptpos').fadeOut();
+		    }
+		});
+		$('#inputrute input[type=reset]').click(function(){
+		    $('#detailrute tbody').children().remove();
+		    return true;
+		});
+	    function updateListRute(){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getallrute',
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                        var tbhtbl=$('#daftarrute tbody');
+                        tbhtbl.children().remove();            
+                        for(var i=0;i<data.length;i++){
+                            var tmp='';
+                            for(var j=0;j<data[i].detail.length;j++){
+                                tmp+='(';
+                                tmp+=(data[i].detail[j].nmkc!=undefined)?data[i].detail[j].nmkc:data[i].detail[j].nmkab;
+                                tmp+=')'+data[i].detail[j].nmkec+' - ';
+                            }
+                            $('<tr><td>'+data[i].id+'</td><td>'+data[i].nama+'</td><td>'+tmp+'</td><td><a href="'+data[i].id+'">Edit</a></td></tr>').appendTo(tbhtbl);
+                        }
+                        $('tbody tr:odd').css('background-color','#c0f090');
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	
+	        
+	    }		
+		$('#inputrute').validate({		
+	        rules:{
+	            nmrute:"required",
+	            booldetrute:"required"
+	        },
+	        messages:{
+	            nmrute:"Masukkan nama rute",
+	            booldetrute:"Pilih Kantor cabang/kecamatan terlebih dahulu"
+	        },
+            submitHandler: function() { 
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);
+                updateInfo('Proses simpan data rute',false);            
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:$('#inputrute').serialize(),
+                    success:function(data){
+                        if(data.berhasil){
+                            updateInfo('Rute baru '+data.nama+' berhasil ditambahkan',false);
+                            $('#inputrute input[type=text]').val('');
+                            $('#inputrute input[type=reset]').click();
+                        }else{
+                            updateInfo('Penyimpanan data rute baru gagal!',false);
+                        }
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });
+            }	        			
+		});
+		
+	    $('#editrute').validate({
+	        rules:{
+	            idrute:{
+	                required:true,
+	                remote:"../../lib/ajax.php?op=cekidrute"
+	                }
+	        },
+	        messages:{
+	            idrute:{
+	                required:"Masukkan id rute",
+	                remote:"Id rute tidak ditemukan"
+	                }
+	        },
+            submitHandler: function() { 
+                editRute($('#idruteedit').val());
+                $('#idruteedit').val('');
+            }
+        });	
+	    $('#daftarrute a').live('click',function(e){
+	        if($(e.target).text()=='Edit'){
+	            editRute($(e.target).attr('href'));
+	            updateInfo('Mengedit Rute dengan id ' + $(e.target).attr('href'))
+	            $('#edit_rute').attr('checked','checked').click();
+	        }
+	        return false;
+	    });        	
+	    function editRute(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getinforute&id='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    $('#updaterute').fadeIn();
+                    $('#eidrute').val(data.id);
+                    $('#enmrute').val(data.nama);
+                    $('#edetailrute tbody').children().remove();
+                    var nilai='',tmpnm='';
+                    for(var i=0;i<data.detail.length;i++){
+                        if(data.detail[i].idkantorcabang==null){
+                            nilai='kosong,'+data.detail[i].idkecamatan;
+                            tmpnm=data.detail[i].nmkab+', '+data.detail[i].nmkec;
+                        }else{
+                            nilai=data.detail[i].idkantorcabang+','+data.detail[i].idkecamatan;
+                            tmpnm='Kantor Cabang :'+data.detail[i].nmkc;
+                        }
+                        $('#edetailrute tbody').append('<tr>' +
+							'<td>' + tmpnm + '</td>' + 
+							'<td><input type="hidden" name="edetrute[]" value="'+nilai+'"><a href="#">Hapus</a></td>' + 
+							'</tr>');                                        
+                    }
+                    $('#editrute').fadeOut();
+
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    }		
+	    $("#batalUpdateRute").click(function(){
+            $('#updaterute').slideUp(2000);
+            $('#editrute').fadeIn(4000);	        
+	    });
+		$('#updaterute').hide().validate({		
+	        rules:{
+	            enmrute:"required",
+	            ebooldetrute:"required"
+	        },
+	        messages:{
+	            enmrute:"Masukkan nama rute",
+	            ebooldetrute:"Pilih Kantor cabang/kecamatan terlebih dahulu"
+	        },
+            submitHandler: function() { 
+                $('body').scrollTop(0);
+                $('html').scrollTop(0)
+                updateInfo('Proses update data rute',false);            
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:$('#updaterute').serialize(),
+                    success:function(data){
+                        if(data.berhasil){
+                            updateInfo('Rute '+data.nama+' berhasil diupdate',false);
+                            $('#updaterute input[type=text]').val('');
+                            $('#updaterute input[type=reset]').click();
+                        }else{
+                            updateInfo('Update data rute gagal!',false);
+                        }
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });
+            }	        			
+		});		
+        $('#eidkabrute').change(function(){
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'POST',
+                timeout:10000,
+                dataType: 'json',
+                data:'op=getkec&idkec='+$(this).val(),
+                success:function(data){
+                        var cmbkec=$('#eidkecrute');
+                        cmbkec.children().remove();
+                        for(var i=0;i<data.length;i++){
+                            $('<option value="'+data[i].id+'">'+data[i].nama+'</option>').appendTo(cmbkec);
+                        }
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    })		
+	    $('#idkabrute').change(function(){
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'POST',
+                timeout:10000,
+                dataType: 'json',
+                data:'op=getkec&idkec='+$(this).val(),
+                success:function(data){
+                        var cmbkec=$('#idkecrute');
+                        cmbkec.children().remove();
+                        for(var i=0;i<data.length;i++){
+                            $('<option value="'+data[i].id+'">'+data[i].nama+'</option>').appendTo(cmbkec);
+                        }
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    });		
+		$('#tambahposrute').click(function(){
+		    dlgtbhrute.dialog('open');
+		});
+        $('#etambahposrute').click(function(){
+		    dlgetbhrute.dialog('open');
+		});	        
+	    function updateInfo(pesan,hide){
+	        //alert(pesan);
+	        if(hide==undefined){
+	            hide=true;
+	        }
+	        if(hide==true){
+	            pnlInfo.children().last().html(pesan);
+	            pnlInfo.hide().stop().fadeIn('fast').delay(3000);
+	            pnlInfo.fadeOut('slow');
+	        }else{
+	            pnlInfo.show();
+	            pnlInfo.children().last().html(pesan);
+	        }
+	        
+	    }
+	    
+		$('#logout').button({
+            icons: {
+                primary: 'ui-icon-power'
+            }}).click(function(){
+               // $('#dialog').dialog('open');
+            });
+            $("#tabs").tabs();
+        dlghpskc.dialog({
+			autoOpen: false,
+			modal: true,
+			show: 'clip',
+			hide: 'clip',
+			resizable: false,
+			buttons: {
+				Ya: function() {
+				    $(this).dialog('close');
+					updateInfo('Data terhapus',false);
+					$('#batalDeleteKC').click();
+                    $.ajax({
+                        url:'../../lib/ajax.php?op=deletekc&didkc='+$('#didkc').val(),
+                        type:'GET',
+                        timeout:10000,
+                        dataType: 'json',
+                        success:function(data){
+                            if(data.berhasil){
+                                updateInfo('Data Kantor dengan id '+data.id+' telah dihapus.',false);
+                            }else{
+                                updateInfo('Penghapusan Data Kantor Gagal',false);
+                            }
+                        },
+                        error:function(e){                    
+                            updateInfo('Terjadi kesalahan koneksi',false);
+                        }
+                    });						
+				},
+				Tidak:function(){
+				    $(this).dialog('close');
+				}
+			}			
+        
+        });
+		dlghpspeg.dialog({
+			autoOpen: false,
+			modal: true,
+			show: 'clip',
+			hide: 'clip',
+			resizable: false,
+			buttons: {
+				Ya: function() {
+				    $(this).dialog('close');
+					updateInfo('Data terhapus',false);
+					$('#batalDeletePeg').click();
+                    $.ajax({
+                        url:'../../lib/ajax.php?op=deletepeg&didpeg='+$('#didpeg').val(),
+                        type:'GET',
+                        timeout:10000,
+                        dataType: 'json',
+                        success:function(data){
+                            if(data.berhasil){
+                                updateInfo('Data pegawai dengan id '+data.id+' telah dihapus.',false);
+                            }else{
+                                updateInfo('Penghapusan Pegawai Gagal',false);
+                            }
+                        },
+                        error:function(e){                    
+                            updateInfo('Terjadi kesalahan koneksi',false);
+                        }
+                    });					
+				},
+				Tidak:function(){
+				    $(this).dialog('close');
+				}
+			}			
+		});            
+		$('.submenu').buttonset();
+		$('#input_peg').click(function(){
+		    updateInfo('hua hua input lagi');
+            pnlInputDataPeg.show();
+            pnlLihatDataPeg.hide();
+            pnlEditDataPeg.hide();
+            pnlDeleteDataPeg.hide();
+		});
+		$('#lihat_peg').click(function(){
+		    updateListPegawai();
+            pnlInputDataPeg.hide();
+            pnlLihatDataPeg.show();
+            pnlEditDataPeg.hide();
+            pnlDeleteDataPeg.hide();		
+        });		
+		$('#edit_peg').click(function(){
+            pnlInputDataPeg.hide();
+            pnlLihatDataPeg.hide();
+            pnlEditDataPeg.show();
+            pnlDeleteDataPeg.hide();
+		});
+		$('#delete_peg').click(function(){
+            pnlInputDataPeg.hide();
+            pnlLihatDataPeg.hide();
+            pnlEditDataPeg.hide();
+            pnlDeleteDataPeg.show();
+		});		
+		$('#input_kc').click(function(){
+		    pnlInputDataKC.show();
+		    pnlLihatDataKC.hide();
+		    pnlEditDataKC.hide();
+		    pnlDeleteDataKC.hide();
+		});
+		$('#lihat_kc').click(function(){
+		    updateListKC();
+		    pnlInputDataKC.hide();
+		    pnlLihatDataKC.show();
+		    pnlEditDataKC.hide();
+		    pnlDeleteDataKC.hide();
+		});		
+		$('#edit_kc').click(function(){
+		    pnlInputDataKC.hide();
+		    pnlLihatDataKC.hide();
+		    pnlEditDataKC.show();
+		    pnlDeleteDataKC.hide();
+		});		
+		$('#delete_kc').click(function(){
+		    pnlInputDataKC.hide();
+		    pnlLihatDataKC.hide();
+		    pnlEditDataKC.hide();
+		    pnlDeleteDataKC.show();
+		});		
+		$('#input_rute').click(function(){
+		    pnlInputDataRute.show();
+		    pnlLihatDataRute.hide();
+		    pnlEditDataRute.hide();
+		});
+		$('#lihat_rute').click(function(){
+		    updateListRute();
+		    pnlInputDataRute.hide();
+		    pnlLihatDataRute.show();
+		    pnlEditDataRute.hide();
+		});
+		$('#edit_rute').click(function(){
+		    pnlInputDataRute.hide();
+		    pnlLihatDataRute.hide();
+		    pnlEditDataRute.show();
+		});				
+		$('#inputpeg').validate({
+	        rules:{
+	            idpeg:{
+	                required:true,
+	                digits:true,
+	                minlength:9,
+	                remote:"../../lib/ajax.php?op=cekidpeg"
+	                },
+	            nmpeg:"required",
+	            tgllhr:"required",
+	            notelp:"required",
+	            password:"required"
+	            },
+	        messages:{
+	            idpeg:{
+	                required:"Masukkan id pegawai",
+	                digits:"Masukkan angka",
+	                minlength:"Panjang id pegawai 9 digit",
+	                remote:"Id pegawai sudah ada"
+	                },
+	            nmpeg:"Isikan nama pegawai",
+	            tgllhr:"Pilih tanggal lahir pegawai",
+	            notelp:"Isikan nomor telp",
+	            password:"Isikan password pegawai"
+	        },
+            submitHandler: function() { 
+                $('body').scrollTop(0);
+                $('html').scrollTop(0)
+                updateInfo('Proses simpan data pegawai',false);            
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:$('#inputpeg').serialize(),
+                    success:function(data){
+                        if(data.berhasil){
+                            updateInfo('Pegawai baru '+data.nama+' berhasil ditambahkan',false);
+                            $('#inputpeg input[type=text]').val('');
+                        }else{
+                            updateInfo('Penyimpanan data pegawai baru gagal!',false);
+                        }
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });
+            }	        	    
+	    });		
+	    function editPegawai(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getinfopeg&id='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    $('#updatepeg').fadeIn();
+                    $('#eidpeg').val(data.id);
+                    $('#enmpeg').val(data.nama);
+                    $('#etgllhr').val(data.tgllahir);
+                    $('#enotelp').val(data.notelp);
+                    $('#epassword').val('');
+                    $('#ejabatan').val(data.jabatan);
+                    if(data.jabatan=='peg. pengiriman'){
+                        $('#edetpp').fadeIn();
+                        $('#eidrutepeg').val(data.idrute);
+                    }else{
+                        $('#edetpp').fadeOut();
+                    }
+                    $('#ejk').val(data.jk);
+                    $('#eidkc').val(data.idkantorcabang);
+                    $('#editpeg').fadeOut();
+
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    }
+	    function deletePegawai(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getinfopeg&id='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    var nilai=[],i=0;
+                    nilai[0]=data.id;
+                    nilai[1]=data.nama;
+                    nilai[2]=(data.jk=='l')?"Laki-laki":"Perempuan";
+                    nilai[3]=data.tgllahir;
+                    nilai[4]=data.jabatan;
+                    nilai[5]=data.notelp;
+                    nilai[6]=data.nkc;
+                    $('#didpeg').val(data.id);
+                    $('#deletepeg').fadeOut();
+                    $('#infopeg tr').each(function(){
+                        $(this).children().last().text(nilai[i++]);
+                    });
+                    $('#konfirmdelete').fadeIn();
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });
+	    }
+	    $('#editpeg').validate({
+	        rules:{
+	            idpeg:{
+	                required:true,
+	                digits:true,
+	                minlength:9,
+	                remote:"../../lib/ajax.php?op=notcekidpeg"
+	                }
+	        },
+	        messages:{
+	            idpeg:{
+	                required:"Masukkan id pegawai",
+	                digits:"Masukkan angka",
+	                minlength:"Panjang id pegawai 9 digit",
+	                remote:"Id pegawai Tidak ditemukan"
+	                }
+	        },
+            submitHandler: function() { 
+                    editPegawai($('#idpegedit').val());
+                    $('#idpegedit').val('');
+            }
+        });    	  
+	    $('#deletepeg').validate({
+	        rules:{
+	            idpeg:{
+	                required:true,
+	                digits:true,
+	                minlength:9,
+	                remote:"../../lib/ajax.php?op=notcekidpeg"
+	                }
+	        },
+	        messages:{
+	            idpeg:{
+	                required:"Masukkan id pegawai",
+	                digits:"Masukkan angka",
+	                minlength:"Panjang id pegawai 9 digit",
+	                remote:"Id pegawai Tidak ditemukan"
+	                }
+	        },
+            submitHandler: function() { 
+                    deletePegawai($('#idpegdelete').val());
+                    $('#idpegdelete').val('');
+            }
+        });       
+        $('#batalUpdatePeg').click(function(){
+            $('#updatepeg').slideUp(2000);
+            $('#editpeg').fadeIn(4000);
+        });
+        $('#updatepeg').hide().validate({
+	        rules:{
+	            enmpeg:"required",
+	            etgllhr:"required",
+	            enotelp:"required"
+	            },
+	        messages:{
+	            enmpeg:"Isikan nama pegawai",
+	            etgllhr:"Pilih tanggal lahir pegawai",
+	            enotelp:"Isikan nomor telp"
+	        },
+            submitHandler: function() { 
+                updateInfo('Updating data...',false);
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:$('#updatepeg').serialize(),
+                    success:function(data){
+                        if(data.berhasil){
+                            updateInfo('Pegawai '+data.nama+' berhasil diupdate',false);
+                            $('#updatepeg input[type=text]').val('');
+                            $('#batalUpdatePeg').click();
+                        }else{
+                            updateInfo('Update data pegawai gagal!',false);
+                        }
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });                
+            }	        	    
+	    });		  
+	    
+	    $('#detpp').hide();
+	    $('#jabatan').change(function(){
+	        if($(this).val()=='peg. pengiriman'){
+	            $(this).parent().next().fadeIn();
+	        }else{
+                $(this).parent().next().fadeOut();
+	        }
+	    });
+	    $('#edetpp').hide();
+	    $('#ejabatan').change(function(){
+            if($(this).val()=='peg. pengiriman'){
+	            $('#edetpp').fadeIn();
+	        }else{
+                $('#edetpp').fadeOut();
+	        }	    
+	    });
+	    $('#konfirmdelete').submit(function(){
+	        dlghpspeg.dialog('open');
+	        return false;
+	    }).hide();
+	    
+	    $('#batalDeletePeg').click(function(){
+            $('#konfirmdelete').slideUp();
+            $('#deletepeg').fadeIn(4000);
+	    });
+	    function updateListPegawai(){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getallpeg',
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                        var tbhtbl=$('#daftarpegawai tbody');
+                        tbhtbl.children().remove();
+                        
+                        for(var i=0;i<data.length;i++){
+                            $('<tr><td>'+data[i].id+'</td><td>'+data[i].nama+'</td><td>'+data[i].jabatan+'</td><td>'+data[i].nkc+'</td><td><a href="'+data[i].id+'">Edit</a>  &nbsp; &nbsp; <a href="'+data[i].id+'">Delete</a></td></tr>').appendTo(tbhtbl);
+                        }
+                        $('tbody tr:odd').css('background-color','#c0f090');
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	
+	        
+	    }
+	    ftgllhr.change(function(){
+	        fpassword.val($(this).val());
+	    });
+	    $('#daftarpegawai a').live('click',function(e){
+	        if($(e.target).text()=='Edit'){
+	            editPegawai($(e.target).attr('href'));
+	            updateInfo('Mengedit pegawai dengan id ' + $(e.target).attr('href'))
+	            $('#edit_peg').attr('checked','checked').click();
+	        }else{
+	            deletePegawai($(e.target).attr('href'));
+	            updateInfo('Konfirmasi hapus pegawai dengan id ' + $(e.target).attr('href'))
+	            $('#delete_peg').attr('checked','checked').click();
+	        }
+	        return false;
+	    });
+	    $.datepicker.setDefaults($.extend({changeMonth: true,changeYear: true}, $.datepicker.regional['id']));
+	    $('#etgllhr').datepicker($.datepicker.regional['id'])
+		    .datepicker('option',{dateFormat:'yy-mm-dd'})
+		    .datepicker('option', {showAnim: 'fadeIn'});
+	    ftgllhr.datepicker($.datepicker.regional['id'])
+		    .datepicker('option',{dateFormat:'yy-mm-dd'})
+		    .datepicker('option', {showAnim: 'fadeIn'});
+		$('tbody tr:odd').css('background-color','#c0f090');
+/***************************
+** kantor_cabang
+********/
+	    $('#idkab').change(function(){
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'POST',
+                timeout:10000,
+                dataType: 'json',
+                data:'op=getkec&idkec='+$(this).val(),
+                success:function(data){
+                        var cmbkec=$('#idkec');
+                        cmbkec.children().remove();
+                        for(var i=0;i<data.length;i++){
+                            $('<option value="'+data[i].id+'">'+data[i].nama+'</option>').appendTo(cmbkec);
+                        }
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    });
+	    $('#eidkab').change(function(){
+            $.ajax({
+                url:'../../lib/ajax.php',
+                type:'POST',
+                timeout:10000,
+                dataType: 'json',
+                data:'op=getkec&idkec='+$(this).val(),
+                success:function(data){
+                        var cmbkec=$('#eidkec');
+                        cmbkec.children().remove();
+                        for(var i=0;i<data.length;i++){
+                            $('<option value="'+data[i].id+'">'+data[i].nama+'</option>').appendTo(cmbkec);
+                        }
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    });	    
+	    $('#inputkc').validate({
+	        rules:{
+	            namakc:"required",
+	            notelpkc:"required",
+	            detalamatkc:"required"
+	            },
+	        messages:{
+	            namakc:"Masukkan nama kantor cabang",
+	            notelpkc:"Masukkan no telp kantor cabang",
+	            detalamatkc:"Masukkan detail alamat kantor cabang"
+	        },
+            submitHandler: function() { 
+                updateInfo('Updating data...',false);
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);
+                updateInfo('Proses simpan data kantor cabang',false);            
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:$('#inputkc').serialize(),
+                    success:function(data){
+                        if(data.berhasil){
+                            updateInfo('Kantor cabang baru '+data.nama+' berhasil ditambahkan',false);
+                            $('#inputkc input[type=text],#inputkc textarea').val('');
+                        }else{
+                            updateInfo('Penyimpanan kantor cabang baru gagal!',false);
+                        }
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });            
+            }	        	    
+	    });	
+	    function updateListKC(){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getallkc',
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                        var tbhtbl=$('#daftarkantor tbody');
+                        tbhtbl.children().remove();
+                        
+                        for(var i=0;i<data.length;i++){
+                            $('<tr><td>'+data[i].id+'</td><td>'+data[i].nama+'</td><td>'+data[i].nmkab+'</td><td>'+data[i].nmkec+'</td><td>'+data[i].detalamat+'</td><td>'+data[i].notelp+'</td><td><a href="'+data[i].id+'">Edit</a>  &nbsp; &nbsp; <a href="'+data[i].id+'">Delete</a></td></tr>').appendTo(tbhtbl);
+                        }
+                        $('tbody tr:odd').css('background-color','#c0f090');
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	   
+	    }	
+	    $('#editkc').validate({
+	        rules:{
+	            idkc:{
+	                required:true,
+	                remote:"../../lib/ajax.php?op=cekidkc"
+	                }
+	        },
+	        messages:{
+	            idkc:{
+	                required:"Masukkan id pegawai",
+	                remote:"Id kantor cabang tidak ditemukan"
+	                }
+	        },
+            submitHandler: function() { 
+                    editKC($('#idkcedit').val());
+                    $('#idkcedit').val('');
+            }
+        });    	  
+	    $('#deletekc').validate({
+	        rules:{
+	            idkc:{
+	                required:true,
+	                remote:"../../lib/ajax.php?op=cekidkc"
+	                }
+	        },
+	        messages:{
+	            idkc:{
+	                required:"Masukkan id pegawai",
+	                remote:"Id kantor cabang tidak ditemukan"
+	                }
+	        },
+            submitHandler: function() { 
+                    deleteKC($('#idkcdelete').val());
+                    $('#idkcdelete').val('');
+            }
+        });   	    
+	    function editKC(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getinfokc&id='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    $('#updatekc').fadeIn();
+                    $('#editidkc').val(data.id);
+                    $('#enamakc').val(data.nama);
+                    $('#eidkab').val(data.idkabupaten);
+                    $('#eidkab').change();
+                    $('#enotelpkc').val(data.notelp);
+                    $('#edetalamatkc').val(data.detalamat);
+                    $('#editkc').delay(2000).fadeOut('slow',function(){
+                        $('#eidkec').val(data.idkecamatan);
+                    });                    
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    }
+	       
+	    function deleteKC(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getinfokc&id='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    var nilai=[],i=0;
+                    nilai[0]=data.id;
+                    nilai[1]=data.nama;
+                    nilai[2]=data.nmkab;
+                    nilai[3]=data.nmkec;
+                    nilai[4]=data.detalamat;
+                    nilai[5]=data.notelp;
+                    $('#didkc').val(data.id);
+                    $('#deletekc').fadeOut();
+                    $('#infokantor tr').each(function(){
+                        $(this).children().last().text(nilai[i++]);
+                    });
+                    $('#konfirmdeletekc').fadeIn();
+                },
+                error:function(e){                   
+                    updateInfo('Terjadi kesalahan koneksi',false);
+                }
+            });	        
+	    }        
+        $('#batalUpdateKC').click(function(){
+            $('#updatekc').slideUp(2000);
+            $('#editkc').fadeIn(4000);
+        });	    
+	    $('#batalDeleteKC').click(function(){
+            $('#konfirmdeletekc').slideUp();
+            $('#deletekc').fadeIn(4000);
+	    });        
+	    $('#konfirmdeletekc').submit(function(){
+	        dlghpskc.dialog('open');
+	        return false;
+	    }).hide();	
+        $('#updatekc').hide().validate({
+	        rules:{
+	            enamakc:"required",
+	            enotelpkc:"required",
+	            edetalamatkc:"required"
+	            },
+	        messages:{
+	            enamakc:"Masukkan nama kantor cabang",
+	            enotelpkc:"Isikan no telp kantor cabang",
+	            edetalamatkc:"Isikan detail alamat kantor cabang"
+	        },
+            submitHandler: function() { 
+                updateInfo('Updating data...',false);
+                $('body').scrollTop(0);
+                $('html').scrollTop(0);
+                $.ajax({
+                    url:'../../lib/ajax.php',
+                    type:'POST',
+                    timeout:10000,
+                    dataType: 'json',
+                    data:$('#updatekc').serialize(),
+                    success:function(data){
+                        if(data.berhasil){
+                            updateInfo('Kantor cabang '+data.nama+' berhasil diupdate',false);
+                            $('#updatekc input[type=text], #updatekc textarea').val('');
+                            $('#batalUpdateKC').click();
+                        }else{
+                            updateInfo('Update data pegawai gagal!',false);
+                        }
+                    },
+                    error:function(e){                    
+                        updateInfo('Terjadi kesalahan koneksi',false);
+                    }
+                });                
+            }	        	    
+	    });	        
+	    $('#daftarkantor a').live('click',function(e){
+	        if($(e.target).text()=='Edit'){
+	            editKC($(e.target).attr('href'));
+	            updateInfo('Mengedit kantor cabang dengan id ' + $(e.target).attr('href'))
+	            $('#edit_kc').attr('checked','checked').click();
+	        }else{
+	            deleteKC($(e.target).attr('href'));
+	            updateInfo('Konfirmasi hapus kantor cabang dengan id ' + $(e.target).attr('href'))
+	            $('#delete_kc').attr('checked','checked').click();
+	        }
+	        return false;
+	    });	        
+	});
+</script>
+</html>

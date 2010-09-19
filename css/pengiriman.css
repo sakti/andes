@@ -1,0 +1,43 @@
+#wrapper{
+    width:300px;
+    margin:0 auto;
+}
+#header{
+    padding:0 0 10px;
+}
+#nav ul{
+    margin:0;
+    padding:0;
+}
+#nav ul li{
+    #display:inline;
+    list-style:none;
+}
+#nav ul li a{
+    color:white;
+    display:block;
+    font-weight:bold;
+    padding:10px 20px;
+    font-size:11pt;
+    background:#55a616;
+    border-bottom:1px solid #555;
+}
+#nav ul li a:hover{
+    background:#8dd952;
+    color:gray !important;
+}
+#panelid{
+    clear:both;
+    float:none;
+    background:#8dd952;
+    color:#000;
+}
+#isi{
+    padding:20px 5px;
+    margin:20px 0;
+    clear:both;
+    background:#f5f3e5;
+    font-family:segoe ui,Arial,sans-serif;
+    font-size:1.1em;
+    color:#000;
+}

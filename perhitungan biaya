@@ -1,0 +1,13 @@
+Perhitunga biaya
+database => []
+nilai nyata => <>
+
+|peritem|
+nilaiitem=[berat]*<berat>+<bobot>*[kategori]
+
+total=[jarak]*<jarak>*(totalnilaiitem)
+|kilat ya|
+total=total+total*[kilat]
+|asuransi ya|
+total=total+(totalnilaibrg*[asuransi])
+
