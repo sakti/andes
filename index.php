@@ -293,6 +293,36 @@
 		    info.slideUp(4000);
 		    frmcekbarang.slideDown(4000);
 		});
+		function updateinfokiriman(id){
+            $.ajax({
+                url:'../../lib/ajax.php?op=getinfotrans&id='+id,
+                type:'GET',
+                timeout:10000,
+                dataType: 'json',
+                success:function(data){
+                    var nilai=[],i=0;
+                    nilai[0]=data.id;
+                    nilai[1]=data.namapengirim;
+                    nilai[2]=data.kabpengirim+', '+data.kecpengirim+', '+data.detalamatpengirim;
+                    nilai[3]=data.notelppengirim;
+                    nilai[4]=data.namapenerima;
+                    nilai[5]=data.kabpenerima+', '+data.kecpenerima+', '+data.detalamatpenerima;
+                    nilai[6]=data.notelppenerima;
+                    nilai[7]=(data.asuransi=='y')?'Ya':'Tidak';
+                    nilai[8]=(data.kilat=='y')?'Ya':'Tidak';
+                    nilai[9]=data.deskripsi;
+                    nilai[10]=data.biaya;
+                    $('#infokiriman tr').each(function(){
+                        $(this).children().last().text(nilai[i++]);
+                    });
+	                $('tbody tr:odd').css('background-color','#c0f090');
+	                $('tbody tr:even').css('background-color','#f8f8f8');  
+                },
+                error:function(e){                   
+                    updateInf('Terjadi kesalahan koneksi',false);
+                }
+            });		
+		}		
 		function updateinfokirimankel(id){
             $.ajax({
                 url:'../../lib/ajax.php?op=getinfotrans&id='+id,
@@ -315,7 +345,8 @@
                     $('#infokirimankel tr').each(function(){
                         $(this).children().last().text(nilai[i++]);
                     });
-                    
+	                $('tbody tr:odd').css('background-color','#c0f090');
+	                $('tbody tr:even').css('background-color','#f8f8f8');  
                 },
                 error:function(e){                   
                     updateInf('Terjadi kesalahan koneksi',false);
@@ -335,7 +366,8 @@
 
                         $('<tr><td>'+data[i].tglwaktu+'</td><td>'+data[i].deskripsi+'</td><td>'+data[i].nmkab+'-'+data[i].nmkec+' '+((data[i].nmkc)?'('+data[i].nmkc+')':'')+'</td></tr>').appendTo(tbhtbl);
                     }
-                    $('tbody tr:odd').css('background-color','#c0f090');
+	                $('tbody tr:odd').css('background-color','#c0f090');
+	                $('tbody tr:even').css('background-color','#f8f8f8');  
                 },
                 error:function(e){                   
                     updateInf('Terjadi kesalahan koneksi',false);
