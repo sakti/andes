@@ -57,7 +57,7 @@ function pg_editPegawai($id,$nama,$jk,$tgllhr,$jabatan,$notelp,$idkc,$password,$
             mysql_real_escape_string($jabatan),
             mysql_real_escape_string($notelp),
             mysql_real_escape_string($idkc),
-            mysql_real_escape_string($id));            
+            mysql_real_escape_string($id)); 
     }
    $result = mysql_query($query);
     if (!$result) {
@@ -70,12 +70,12 @@ function pg_editPegawai($id,$nama,$jk,$tgllhr,$jabatan,$notelp,$idkc,$password,$
         $jml=mysql_affected_rows($GLOBALS["link"]);
         if(!$result) return false;
         if($jml==0){
-        $query = sprintf("INSERT INTO detailpegpengiriman values('%s',%s,NULL)",
+            $query = sprintf("INSERT INTO detailpegpengiriman values('%s',%s,NULL)",
             mysql_real_escape_string($id),
             mysql_real_escape_string($idrutepeg));
+            $result = mysql_query($query);
+            if(!$result&&mysql_errno()!=1062) return false;
         }
-        $result = mysql_query($query);
-        if(!$result) return false;
         return true;
     }else{
         return true;

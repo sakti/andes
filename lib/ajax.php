@@ -208,7 +208,7 @@ if(!empty($_REQUEST['op'])){
                         echo '{"berhasil":true,"nama":"'.$_POST['enmpeg'].'"}';
                     }else{
                         echo '{"berhasil":false}';
-                    }                    
+                    }
                     break;   
                 case 'deletepeg':
                     $coba=pg_deletePegawai($_GET['didpeg']);
