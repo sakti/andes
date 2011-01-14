@@ -1,0 +1,202 @@
+<!DOCTYPE html> 
+<html> 
+  <head> 
+  <title>Page Title</title> 
+  <link rel="stylesheet" href="jquery.mobile-1.0a2.min.css" />
+  <style>
+.tabel{
+    width:100%;
+    background:#f8f8f8;
+    padding:5px;
+    border:none;
+    border-collapse:collapse;
+}
+.tabel thead tr th{
+    padding:8px;
+    margin:0;
+    background:url(south-street/images/ui-bg_highlight-soft_25_67b021_1x100.png) repeat-x;
+    border-top:2px solid #1e3d07;
+    border-bottom:2px solid #1e3d07;
+ }
+.tabel thead tr{
+    
+}
+.tabel td{
+    padding:5px 10px;
+}
+  </style>
+  <script src="jquery-1.4.4.min.js"></script>
+  <script src="jquery.mobile-1.0a2.min.js"></script>
+</head> 
+<body> 
+
+<div data-role="page" id="home">
+  <div data-role="header">
+    <h1>Dashboard Peg.Pengiriman</h1>
+    <a href="logout.php" data-rule="button">Log out</a>
+  </div>
+  <div data-role="content"> 
+    <h2>Menu Utama</h2>
+    <ul data-role="listview" data-inset="true">
+      <li><a href="#rute">Lihat Rute</a></li>
+      <li><a href="#info">Info Barang Diangkut</a></li>
+      <li><a href="#update">Update Status Barang</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </div>
+</div>
+
+<div data-role="page" id="rute">
+  <div data-role="header">
+    <h1>Lihat Rute</h1>
+  </div>
+  <div data-role="content"> 
+<p>Anda memiliki rute dengan nama rute 'Antar Pusat Kab/Kota' yang mempunyai jalur sebagai berikut :</p> 
+    <ul data-role="listview" data-inset="true"> 
+        <li>kota bandung -- antapani (Pusat Kota Bandung)</li> 
+	            	                <li>bandung -- arjasari (Pusat Kab Bandung)</li> 
+	            	                <li>bekasi -- babelan (Pusat Kab Bekasi)</li> 
+	            	                <li>bogor -- ciawi (Pusat Kab Bogor)</li> 
+	            	                <li>ciamis -- ciamis (Pusat Kab Ciamis)</li> 
+	            	                <li>cianjur -- cianjur (Pusat Kab Cianjur)</li> 
+	            	                <li>cirebon -- depok (Pusat Kab Cirebon)</li> 
+	            	                <li>garut -- banjarwangi (Pusat Kab Garut)</li> 
+	            	                <li>indramayu -- anjatan (Pusat Kab Indramayu)</li> 
+	            	                <li>karawang -- batujaya (Pusat Kab Karawang)</li> 
+	            	                <li>kuningan -- ciawigebang (Pusat Kab Kuningan)</li> 
+	            	                <li>majalengka -- argapura (Pusat Kab Majalengka)</li> 
+	            	                <li>purwakarta -- babakancikao (Pusat Kab Purwakarta)</li> 
+	            	                <li>subang -- binong (Pusat Kab Subang)</li> 
+	            	                <li>sukabumi -- bantargadung (Pusat Kab Sukabumi)</li> 
+	            	                <li>sumedang -- buahdua (Pusat Kab Sumedang)</li> 
+	            	                <li>tasikmalaya -- bantarkalong (Pusat Kab Tasikmalaya)</li> 
+	            	                <li>kota banjar -- banjar (Pusat Kota Banjar)</li> 
+	            	                <li>kota bekasi -- bantar gebang (Pusat Kota Bekasi)</li> 
+	            	                <li>kota bogor -- bogor barat (Pusat Kota Bogor)</li> 
+	            	                <li>kota cimahi -- cimahi selatan (Pusat Kota Cimahi)</li> 
+	            	                <li>kota cirebon -- harjamukti (Pusat Kota Cirebon)</li> 
+	            	                <li>kota depok -- beji (Pusat Kota Depok)</li> 
+	            	                <li>kota sukabumi -- baros (Pusat Kota Sukabumi)</li> 
+	            	                <li>kota tasikmalaya -- bungursari (Pusat Kota Tasikmalaya)</li> 
+	            	            </ul> 
+<h3>Set Posisi</h3> 
+	            <p> 
+	            Posisi anda 
+	            (Pusat Kota Bandung) kota bandung - antapani	            <p>	            
+	            <form class="def_form" action="index.php" method="post"> 
+	                <fieldset> 
+	                <label for="posisi">Update Posisi</label> 
+	                <select name="posisi" id="posisi"> 
+	                	                    <option value="1"> KC Pusat Kota Bandung</option> 
+	                	                    <option value="2"> KC Pusat Kab Bandung</option> 
+	                	                    <option value="3"> KC Pusat Kab Bekasi</option> 
+	                	                    <option value="4"> KC Pusat Kab Bogor</option> 
+	                	                    <option value="5"> KC Pusat Kab Ciamis</option> 
+	                	                    <option value="6"> KC Pusat Kab Cianjur</option> 
+	                	                    <option value="7"> KC Pusat Kab Cirebon</option> 
+	                	                    <option value="8"> KC Pusat Kab Garut</option> 
+	                	                    <option value="9"> KC Pusat Kab Indramayu</option> 
+	                	                    <option value="10"> KC Pusat Kab Karawang</option> 
+	                	                    <option value="11"> KC Pusat Kab Kuningan</option> 
+	                	                    <option value="12"> KC Pusat Kab Majalengka</option> 
+	                	                    <option value="13"> KC Pusat Kab Purwakarta</option> 
+	                	                    <option value="14"> KC Pusat Kab Subang</option> 
+	                	                    <option value="15"> KC Pusat Kab Sukabumi</option> 
+	                	                    <option value="16"> KC Pusat Kab Sumedang</option> 
+	                	                    <option value="17"> KC Pusat Kab Tasikmalaya</option> 
+	                	                    <option value="18"> KC Pusat Kota Banjar</option> 
+	                	                    <option value="19"> KC Pusat Kota Bekasi</option> 
+	                	                    <option value="20"> KC Pusat Kota Bogor</option> 
+	                	                    <option value="21"> KC Pusat Kota Cimahi</option> 
+	                	                    <option value="22"> KC Pusat Kota Cirebon</option> 
+	                	                    <option value="23"> KC Pusat Kota Depok</option> 
+	                	                    <option value="24"> KC Pusat Kota Sukabumi</option> 
+	                	                    <option value="25"> KC Pusat Kota Tasikmalaya</option> 
+	                    
+	                </select> 
+	                </fieldset> 
+	                <input type="submit" value="Update" name="update"> 
+	            </form> 
+  </div>
+</div>
+
+<div data-role="page" id="info">
+  <div data-role="header">
+    <h1>Info Barang Diangkut</h1>
+  </div>
+  <div data-role="content"> 
+<h2>Info Barang yang anda kirim</h2> 
+	            <p>Info pengiriman yang saat ini anda kirim</p> 
+	            <table id="daftartransaksi" class="tabel"> 
+	                <thead> 
+	                    <tr><th>ID Transaksi</th><th>Info</th></tr> 
+	                </thead> 
+	                <tbody> 
+                        		                
+	                </tbody> 
+	            </table> 
+	            <h3>Ambil barang</h3>	            <h2>Update status barang</h2> 
+                	            <p>Update status kiriman yang anda kirim. Ada tiga pilihan yaitu 'Diterima' ketika kiriman sudah diterima oleh penerima, 'Dititipkan' ketika kiriman dititipkan ke kantor cabang terdekat dikarenakan si penerima tidak ada ditempat dan tidak bisa diwakilkan oleh tetangga, yang terakhir 'Disinggahkan' jika anda kiriman yang anda kirim melalui rute yang berbeda</p> 
+	            <p>Hati-hati dalam melakukan update status karena operasi ini tidak dapat diulangi kembali, anda bertanggung jawab penuh atas apa yang anda lakukan</p> 
+	            <form action="update.php" class="def_form"> 
+	                <table id="daftartransaksi" class="tabel"> 
+	                    <thead> 
+	                        <tr><th>ID Transaksi</th><th>Info</th></tr> 
+	                    </thead> 
+	                    <tbody> 
+                            		                
+	                    </tbody> 
+	                </table>	            
+	            </form> 
+	            <p>Ambil barang pada kantor cabang Pusat Kota Bandung<p> 
+	            <form action="info.php" method="post" class="def_form"> 
+	            <table id="daftarpaket" class="tabel"> 
+	                <thead> 
+	                    <tr><th>Ambil</th><th>Info</th></tr> 
+	                </thead> 
+	                <tbody> 
+	                                 
+	                </tbody> 
+	            </table>	     
+	            <input type="submit" name="ambil" value="Ambil" />           
+	            </form> 
+  </div>
+</div>
+
+<div data-role="page" id="update">
+  <div data-role="header">
+    <h1>Update Status Barang</h1>
+  </div>
+  <div data-role="content"> 
+<h2>Update status barang</h2> 
+                	            <p>Update status kiriman yang anda kirim. Ada tiga pilihan yaitu 'Diterima' ketika kiriman sudah diterima oleh penerima, 'Dititipkan' ketika kiriman dititipkan ke kantor cabang terdekat dikarenakan si penerima tidak ada ditempat dan tidak bisa diwakilkan oleh tetangga, yang terakhir 'Disinggahkan' jika anda kiriman yang anda kirim melalui rute yang berbeda</p> 
+	            <p>Hati-hati dalam melakukan update status karena operasi ini tidak dapat diulangi kembali, anda bertanggung jawab penuh atas apa yang anda lakukan</p> 
+	            <form action="update.php" class="def_form"> 
+	                <table id="daftartransaksi" class="tabel"> 
+	                    <thead> 
+	                        <tr><th>ID Transaksi</th><th>Info</th></tr> 
+	                    </thead> 
+	                    <tbody> 
+                            		                
+	                    </tbody> 
+	                </table>	            
+	            </form> 
+  </div>
+</div>
+
+<div data-role="page" id="faq">
+  <div data-role="header">
+    <h1>FAQ</h1>
+  </div>
+  <div data-role="content"> 
+    <p> Kantor cabang disini. sadfasdf as stat us Proin elit arcu, rutrum commodo, risus. Curabitur nec arcu. Donec sollicitudin mi sit amet mauris.  Duis orci</p> 
+    <h3>Ut et mauris vel pede varius sollicitudin?</h3> 
+    <p>Nam elementum quam ullamcorper ante. Etiam aliquet massa et lorem. Mauris dapibus lacus auctor risus. Aenean tempor ullamcorper leo. Vivamus sed magna quis ligula eleifend adipiscing.</p> 
+    <h3>vehicula tempus, commodo a?</h3> 
+    <p>Aliquam sodales tortor vitae ipsum. Aliquam nulla. Duis aliquam molestie erat.  Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>  
+    <a href="http://localhost/pegawai">Tes</a>
+  </div>
+</div>
+</body>
+</html>
+
